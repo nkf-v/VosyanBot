@@ -1,15 +1,13 @@
 from peewee import *
 from os import getenv
+from dotenv import load_dotenv
+
+load_dotenv('./../.env')
 
 user = getenv('DB_USER')
 password = getenv('DB_PASSWORD')
 db_name = getenv('DB_NAME')
 db_host = getenv('DB_HOST')
-
-print(user)
-print(password)
-print(db_name)
-print(db_host)
 
 db = MySQLDatabase(
     db_name,
