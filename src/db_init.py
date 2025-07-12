@@ -6,8 +6,14 @@ password = getenv('DB_PASSWORD')
 db_name = getenv('DB_NAME')
 db_host = getenv('DB_HOST')
 
-dbhandle = MySQLDatabase(
-    db_name, user=user,
+print(user)
+print(password)
+print(db_name)
+print(db_host)
+
+db = MySQLDatabase(
+    db_name,
+    user=user,
     password=password,
     host=db_host
 )
@@ -15,7 +21,7 @@ dbhandle = MySQLDatabase(
 
 class Members(Model):
     class Meta:
-        database = dbhandle
+        database = db
         order_by = ('chat_id',)
 
     chat_id = BigIntegerField()
@@ -28,7 +34,7 @@ class Members(Model):
 
 class PidorStats(Model):
     class Meta:
-        database = dbhandle
+        database = db
         order_by = ('chat_id',)
 
     chat_id = BigIntegerField()
@@ -38,7 +44,7 @@ class PidorStats(Model):
 
 class Stats(Model):
     class Meta:
-        database = dbhandle
+        database = db
         order_by = ('chat_id',)
 
     chat_id = BigIntegerField()
@@ -48,7 +54,7 @@ class Stats(Model):
 
 class CurrentPidor(Model):
     class Meta:
-        database = dbhandle
+        database = db
         order_by = ('chat_id',)
 
     chat_id = BigIntegerField()
@@ -58,7 +64,7 @@ class CurrentPidor(Model):
 
 class CurrentNice(Model):
     class Meta:
-        database = dbhandle
+        database = db
         order_by = ('chat_id',)
 
     chat_id = BigIntegerField()
@@ -68,7 +74,7 @@ class CurrentNice(Model):
 
 class CarmicDicesEnabled(Model):
     class Meta:
-        database = dbhandle
+        database = db
         order_by = ('chat_id',)
 
     chat_id = BigIntegerField()

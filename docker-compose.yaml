@@ -3,25 +3,25 @@ services:
   database:
     image: mysql:8.1
     volumes:
-      - ./data:/var/lib/mysql
+      - ./docker/database/data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: "passw"
-      MYSQL_DATABASE: "test_database"
-      MYSQL_USER: "bot"
-      MYSQL_PASSWORD: "11111"
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: "root"
     healthcheck:
       test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
       timeout: 20s
       retries: 10
-  nicebot:
-    build: ./nice_bot
+  bot:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
     volumes:
-      - ./nice_bot:/usr/src/app
+      - ./:/usr/src/app
+    env_file:
+      - .env
     environment:
-      BOT_TOKEN: "TOKEN"
-      DB_USER: "bot"
-      DB_PASSWORD: "11111"
-      DB_NAME: "test_database"
       DB_HOST: "database"
     depends_on:
       database:

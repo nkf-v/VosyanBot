@@ -5,7 +5,7 @@ import messages
 import stickers
 import peewee
 import os
-from db_init import dbhandle, Members, PidorStats, Stats, CurrentPidor, CurrentNice, CarmicDicesEnabled
+from db_init import db, Members, PidorStats, Stats, CurrentPidor, CurrentNice, CarmicDicesEnabled
 from db_functions import (create_user, unreg_in_data, is_not_time_expired, are_carmic_dices_enabled, update_pidor_stats,
                           get_current_user, get_user_percentage_nice_pidor, get_pidor_stats, get_all_members,
                           get_random_id, get_random_id_carmic, get_full_name_from_db, get_nickname_from_db,
@@ -15,10 +15,9 @@ from db_functions import (create_user, unreg_in_data, is_not_time_expired, are_c
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 
-
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    level=logging.DEBUG
 )
 
 
@@ -107,7 +106,7 @@ async def pidor(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if congratulations != "":
         await context.bot.send_message(chat_id=update.effective_chat.id, text=congratulations)
         await context.bot.send_sticker(chat_id=update.effective_chat.id,
-                                           sticker=stickers.BILLY_TEAR_OFF_VEST)
+                                       sticker=stickers.BILLY_TEAR_OFF_VEST)
 
 
 async def run(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -160,7 +159,7 @@ async def run(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if congratulations != "":
         await context.bot.send_message(chat_id=update.effective_chat.id, text=congratulations)
         await context.bot.send_sticker(chat_id=update.effective_chat.id,
-                                           sticker=stickers.DRINK_CHAMPAGNE)
+                                       sticker=stickers.DRINK_CHAMPAGNE)
 
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -222,9 +221,9 @@ async def pidor_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def reset_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
     keyboard = [[
-            InlineKeyboardButton("Да", callback_data=f"resetstats Yes {chat_id}"),
-            InlineKeyboardButton("Нет", callback_data=f"resetstats No {chat_id}"),
-        ]]
+        InlineKeyboardButton("Да", callback_data=f"resetstats Yes {chat_id}"),
+        InlineKeyboardButton("Нет", callback_data=f"resetstats No {chat_id}"),
+    ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("Точно сбросить статистику? Вернуть её будет нельзя, "
                                     "все забудут, кто был красавчиком", reply_markup=reply_markup)
@@ -316,46 +315,29 @@ async def show_pidor_coefficients(update: Update, context: ContextTypes.DEFAULT_
 async def switch_on_carmic_dices_in_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
     keyboard = [[
-            InlineKeyboardButton("Да", callback_data=f"carma Yes {chat_id}"),
-            InlineKeyboardButton("Нет", callback_data=f"carma No {chat_id}"),
-        ]]
+        InlineKeyboardButton("Да", callback_data=f"carma Yes {chat_id}"),
+        InlineKeyboardButton("Нет", callback_data=f"carma No {chat_id}"),
+    ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("Включить кармические кубики? Если они включены, у пидоров больше шансов стать "
                                     "красавчиками, а у красавчиков - стать пидорами", reply_markup=reply_markup)
 
-async def send_message_to_another_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.effective_chat.id != 326053639:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text='Это команду может выполнить только автор бота')
-    else:
-        chat_ids = get_all_chat_ids()
-        for i in chat_ids:
-            try:
-                await context.bot.send_message(chat_id=i, text=messages.WARM_UP_MESSAGE)
-            except telegram.error.Forbidden:
-                print(f'bot is blocked in chat {i}')
-                pass
-            except telegram.error.BadRequest:
-                print(f'chat {i} not found')
-                pass
-
-async def donate(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=messages.DONATION)
-
-
 
 if __name__ == '__main__':
     try:
-        dbhandle.connect()
+        db.connect()
         Members.create_table()
         PidorStats.create_table()
         Stats.create_table()
         CurrentPidor.create_table()
         CurrentNice.create_table()
         CarmicDicesEnabled.create_table()
-        dbhandle.close()
+        db.close()
     except peewee.InternalError as px:
         print(str(px))
+
     application = ApplicationBuilder().token(os.getenv('BOT_TOKEN')).build()
+
     reg_handler = CommandHandler('reg', reg)
     unreg_handler = CommandHandler('unreg', unreg)
     pidor_handler = CommandHandler('pidor', pidor)
@@ -366,13 +348,23 @@ if __name__ == '__main__':
     percent_stats_handler = CommandHandler('percentstats', percent_stats)
     nice_coefficients_handler = CommandHandler('nicecoefficients', show_coefficients)
     pidor_coefficients_handler = CommandHandler('pidorcoefficients', show_pidor_coefficients)
-    donate_handler = CommandHandler('contacts', donate)
-    message_to_another_chat_handler = CommandHandler('another', send_message_to_another_chat)
     switch_on_carmic_dices_in_chat_handler = CommandHandler('carmicdices', switch_on_carmic_dices_in_chat)
-    application.add_handlers([reg_handler, unreg_handler, pidor_handler, run_handler, stats_handler,
-                              pidor_stats_handler, reset_stats_handler, percent_stats_handler,
-                              nice_coefficients_handler, pidor_coefficients_handler,
-                              switch_on_carmic_dices_in_chat_handler, donate_handler, message_to_another_chat_handler,
-                              CallbackQueryHandler(confirm_dialogs)])
+
+    application.add_handlers([
+        reg_handler,
+        unreg_handler,
+        pidor_handler,
+        run_handler,
+        stats_handler,
+        pidor_stats_handler,
+        reset_stats_handler,
+        percent_stats_handler,
+        nice_coefficients_handler,
+        pidor_coefficients_handler,
+        switch_on_carmic_dices_in_chat_handler,
+        CallbackQueryHandler(confirm_dialogs)
+    ])
+
     application.add_handler(MessageHandler(filters.StatusUpdate.LEFT_CHAT_MEMBER, member_left))
+
     application.run_polling()
