@@ -1,8 +1,8 @@
 from peewee import *
-from os import getenv
+from os import getenv, path
 from dotenv import load_dotenv
 
-load_dotenv('./../.env')
+load_dotenv(path.abspath('.env'))
 
 user = getenv('DB_USER')
 password = getenv('DB_PASSWORD')
