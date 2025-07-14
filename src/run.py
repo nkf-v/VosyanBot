@@ -176,11 +176,11 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 user_full_name = user_info.user.full_name
                 user_nickname = user_info.user.username
                 set_full_name_and_nickname_in_db(chat_id, item[0], user_full_name, user_nickname)
-                usernames.append(f'{user_full_name} (@{user_nickname})')
+                usernames.append(f'{user_full_name} ({user_nickname})')
             except telegram.error.BadRequest:
                 user_full_name_from_db = get_full_name_from_db(chat_id, item[0])
                 user_nickname_from_db = get_nickname_from_db(chat_id, item[0])
-                usernames.append(f'{user_full_name_from_db} (@{user_nickname_from_db})')
+                usernames.append(f'{user_full_name_from_db} ({user_nickname_from_db})')
             counts.append(item[1])
         user_stats = dict(zip(usernames, counts))
         text_list = ['Результаты игры красавчик дня:']
@@ -204,11 +204,11 @@ async def pidor_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 user_full_name = user_info.user.full_name
                 user_nickname = user_info.user.username
                 set_full_name_and_nickname_in_db(chat_id, item[0], user_full_name, user_nickname)
-                usernames.append(f'{user_info.user.full_name} (@{user_info.user.username})')
+                usernames.append(f'{user_info.user.full_name} ({user_info.user.username})')
             except telegram.error.BadRequest:
                 user_full_name_from_db = get_full_name_from_db(chat_id, item[0])
                 user_nickname_from_db = get_nickname_from_db(chat_id, item[0])
-                usernames.append(f'{user_full_name_from_db} (@{user_nickname_from_db})')
+                usernames.append(f'{user_full_name_from_db} ({user_nickname_from_db})')
             counts.append(item[1])
         user_stats = dict(zip(usernames, counts))
         text_list = ['Результаты игры пидор дня:']
