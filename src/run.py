@@ -281,12 +281,12 @@ async def percent_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user_full_name = user_info.user.full_name
             user_nickname = user_info.user.username
             set_full_name_and_nickname_in_db(chat_id, i['member_id'], user_full_name, user_nickname)
-            text_list.append(f"{user_full_name} (@{user_nickname}) на {i['nice']}% красавчик и на "
+            text_list.append(f"{user_full_name} ({user_nickname}) на {i['nice']}% красавчик и на "
                              f"{i['pidor']}% пидор")
         except telegram.error.BadRequest:
             user_full_name_from_db = get_full_name_from_db(chat_id, i['member_id'])
             user_nickname_from_db = get_nickname_from_db(chat_id, i['member_id'])
-            text_list.append(f"{user_full_name_from_db} (@{user_nickname_from_db}) на {i['nice']}% красавчик и на "
+            text_list.append(f"{user_full_name_from_db} ({user_nickname_from_db}) на {i['nice']}% красавчик и на "
                              f"{i['pidor']}% пидор")
     text = '\n'.join(text_list)
     await context.bot.send_message(chat_id=update.effective_chat.id, text=text)
