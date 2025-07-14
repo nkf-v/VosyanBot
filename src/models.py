@@ -9,6 +9,7 @@ password = getenv('DB_PASSWORD')
 db_name = getenv('DB_NAME')
 db_host = getenv('DB_HOST')
 
+# Сделать фабрику и SigleTone вынести в отдельный файл
 db = MySQLDatabase(
     db_name,
     user=user,

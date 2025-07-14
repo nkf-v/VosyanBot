@@ -5,7 +5,7 @@ import messages
 import stickers
 import peewee
 import os
-from db_init import db, Members, PidorStats, Stats, CurrentPidor, CurrentNice, CarmicDicesEnabled
+from models import db, Members, PidorStats, Stats, CurrentPidor, CurrentNice, CarmicDicesEnabled
 from db_functions import (create_user, unreg_in_data, is_not_time_expired, are_carmic_dices_enabled, update_pidor_stats,
                           get_current_user, get_user_percentage_nice_pidor, get_pidor_stats, get_all_members,
                           get_random_id, get_random_id_carmic, get_full_name_from_db, get_nickname_from_db,
@@ -17,7 +17,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, Callb
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.DEBUG
+    level=logging.INFO
 )
 
 
