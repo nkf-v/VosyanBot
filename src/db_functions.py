@@ -4,7 +4,7 @@ import datetime
 
 from peewee import fn
 
-from models import db, Members, Stats, PidorStats, CurrentPidor, CurrentNice, CarmicDicesEnabled
+from models import db, Member, Stats, PidorStats, CurrentPidor, CurrentNice, CarmicDicesEnabled
 
 
 def create_user(chat_id, user_id, user_full_name, user_nickname):
@@ -13,12 +13,12 @@ def create_user(chat_id, user_id, user_full_name, user_nickname):
 
     db.connect()
     is_user_in_chat = False
-    for i in Members.select().where((Members.chat_id == chat_id) & (Members.member_id == user_id)):
+    for i in Member.select().where((Member.chat_id == chat_id) & (Member.member_id == user_id)):
         is_user_in_chat = True
     if is_user_in_chat:
         db.close()
         return False
-    Members.create(chat_id=chat_id, member_id=user_id, coefficient=10, pidor_coefficient=10, full_name=user_full_name,
+    Member.create(chat_id=chat_id, member_id=user_id, coefficient=10, pidor_coefficient=10, full_name=user_full_name,
                    nick_name=user_nickname)
     stats_of_user = 0
     pidor_stats_of_user = 0
@@ -48,7 +48,7 @@ def create_user(chat_id, user_id, user_full_name, user_nickname):
 
 def unreg_in_data(chat_id, user_id):
     db.connect()
-    query = Members.delete().where((Members.chat_id == chat_id) & (Members.member_id == user_id))
+    query = Member.delete().where((Member.chat_id == chat_id) & (Member.member_id == user_id))
     deleted_rows = query.execute()
     db.close()
     if deleted_rows == 0:
@@ -59,14 +59,14 @@ def unreg_in_data(chat_id, user_id):
 
 def get_all_chat_ids():
     db.connect()
-    chat_ids = [i.chat_id for i in Members.select(Members.chat_id).distinct()]
+    chat_ids = [i.chat_id for i in Member.select(Member.chat_id).distinct()]
     db.close()
     return chat_ids
 
 
 def get_all_members(chat_id):
     db.connect()
-    members = [i.member_id for i in Members.select(Members.member_id).where(Members.chat_id == chat_id)]
+    members = [i.member_id for i in Member.select(Member.member_id).where(Member.chat_id == chat_id)]
     db.close()
     return members
 
@@ -92,10 +92,10 @@ def get_user_coefficient(chat_id, member_id, pidor_or_nice):
     db.connect()
     coefficient = -1
     if pidor_or_nice == 'nice':
-        for i in Members.select().where((Members.chat_id == chat_id) & (Members.member_id == member_id)):
+        for i in Member.select().where((Member.chat_id == chat_id) & (Member.member_id == member_id)):
             coefficient = i.coefficient
     if pidor_or_nice == 'pidor':
-        for i in Members.select().where((Members.chat_id == chat_id) & (Members.member_id == member_id)):
+        for i in Member.select().where((Member.chat_id == chat_id) & (Member.member_id == member_id)):
             coefficient = i.pidor_coefficient
     db.close()
     return coefficient
@@ -159,35 +159,35 @@ def update_coefficient_for_users(chat_id, chosen_member, nice_or_pidor):
     db.connect()
     current_coefficient_chosen = 10
     if nice_or_pidor == 'nice':
-        for i in Members.select().where((Members.chat_id == chat_id) & (Members.member_id == chosen_member)):
+        for i in Member.select().where((Member.chat_id == chat_id) & (Member.member_id == chosen_member)):
             current_coefficient_chosen = i.coefficient
         new_coefficient_chosen = check_coefficient_for_chosen(current_coefficient_chosen - 2)
-        query = Members.update(coefficient=new_coefficient_chosen).where((Members.chat_id == chat_id) &
-                                                                         (Members.member_id == chosen_member))
+        query = Member.update(coefficient=new_coefficient_chosen).where((Member.chat_id == chat_id) &
+                                                                         (Member.member_id == chosen_member))
         query.execute()
     if nice_or_pidor == 'pidor':
-        for i in Members.select().where((Members.chat_id == chat_id) & (Members.member_id == chosen_member)):
+        for i in Member.select().where((Member.chat_id == chat_id) & (Member.member_id == chosen_member)):
             current_coefficient_chosen = i.coefficient
         new_coefficient_chosen = check_coefficient_for_chosen(current_coefficient_chosen - 2)
-        query = Members.update(pidor_coefficient=new_coefficient_chosen).where((Members.chat_id == chat_id) &
-                                                                               (Members.member_id == chosen_member))
+        query = Member.update(pidor_coefficient=new_coefficient_chosen).where((Member.chat_id == chat_id) &
+                                                                               (Member.member_id == chosen_member))
         query.execute()
     for t in members:
         if nice_or_pidor == 'nice':
             current_nice_coefficient = 10
-            for i in Members.select().where((Members.chat_id == chat_id) & (Members.member_id == t)):
+            for i in Member.select().where((Member.chat_id == chat_id) & (Member.member_id == t)):
                 current_nice_coefficient = i.coefficient
             new_nice_coefficient = check_coefficient_for_others(current_nice_coefficient)
-            query = Members.update(coefficient=new_nice_coefficient).where((Members.chat_id == chat_id) &
-                                                                       (Members.member_id == t))
+            query = Member.update(coefficient=new_nice_coefficient).where((Member.chat_id == chat_id) &
+                                                                       (Member.member_id == t))
             query.execute()
         if nice_or_pidor == 'pidor':
             current_pidor_coefficient = 10
-            for i in Members.select().where((Members.chat_id == chat_id) & (Members.member_id == t)):
+            for i in Member.select().where((Member.chat_id == chat_id) & (Member.member_id == t)):
                 current_pidor_coefficient = i.coefficient
             new_pidor_coefficient = check_coefficient_for_others(current_pidor_coefficient)
-            query = Members.update(pidor_coefficient=new_pidor_coefficient).where((Members.chat_id == chat_id) &
-                                                                       (Members.member_id == t))
+            query = Member.update(pidor_coefficient=new_pidor_coefficient).where((Member.chat_id == chat_id) &
+                                                                       (Member.member_id == t))
             query.execute()
     db.close()
 
@@ -262,7 +262,7 @@ def reset_stats_data(chat_id):
     members_in_game = []
     members_in_stats = []
     members_in_pidorstats = []
-    for p in Members.select().where(Members.chat_id == chat_id):
+    for p in Member.select().where(Member.chat_id == chat_id):
         members_in_game.append(p.member_id)
     for k in Stats.select().where(Stats.chat_id == chat_id):
         members_in_stats.append(k.member_id)
@@ -342,15 +342,15 @@ def set_full_name_and_nickname_in_db(chat_id, member_id, fullname, nickname):
     nickname = "NULL" if nickname == None else nickname
 
     db.connect()
-    Members.update(full_name=fullname, nick_name=nickname).where((Members.chat_id == chat_id)
-                                                                 & (Members.member_id == member_id)).execute()
+    Member.update(full_name=fullname, nick_name=nickname).where((Member.chat_id == chat_id)
+                                                                 & (Member.member_id == member_id)).execute()
     db.close()
 
 
 def get_full_name_from_db(chat_id, member_id):
     db.connect()
     full_name = 'No full name found'
-    for k in Members.select().where((Members.chat_id == chat_id) & (Members.member_id == member_id)):
+    for k in Member.select().where((Member.chat_id == chat_id) & (Member.member_id == member_id)):
         full_name = k.full_name
     db.close()
     return full_name
@@ -359,7 +359,7 @@ def get_full_name_from_db(chat_id, member_id):
 def get_nickname_from_db(chat_id, member_id):
     db.connect()
     nick_name = 'No nickname found'
-    for k in Members.select().where((Members.chat_id == chat_id) & (Members.member_id == member_id)):
+    for k in Member.select().where((Member.chat_id == chat_id) & (Member.member_id == member_id)):
         nick_name = k.nick_name
     db.close()
     return nick_name
@@ -367,8 +367,8 @@ def get_nickname_from_db(chat_id, member_id):
 def get_chat_members_nice_coefficients(chat_id):
     db.connect()
     coefficients = {}
-    coef_sum = Members.select(fn.SUM(Members.coefficient)).where(Members.chat_id == chat_id).scalar()
-    for k in Members.select(Members.full_name, Members.coefficient).where(Members.chat_id == chat_id):
+    coef_sum = Member.select(fn.SUM(Member.coefficient)).where(Member.chat_id == chat_id).scalar()
+    for k in Member.select(Member.full_name, Member.coefficient).where(Member.chat_id == chat_id):
         coefficients[k.full_name] = round(k.coefficient / coef_sum * 100, 2)
     db.close()
     return coefficients
@@ -376,8 +376,8 @@ def get_chat_members_nice_coefficients(chat_id):
 def get_chat_members_pidor_coefficients(chat_id):
     db.connect()
     coefficients = {}
-    coef_sum = Members.select(fn.SUM(Members.pidor_coefficient)).where(Members.chat_id == chat_id).scalar()
-    for k in Members.select(Members.full_name, Members.pidor_coefficient).where(Members.chat_id == chat_id):
+    coef_sum = Member.select(fn.SUM(Member.pidor_coefficient)).where(Member.chat_id == chat_id).scalar()
+    for k in Member.select(Member.full_name, Member.pidor_coefficient).where(Member.chat_id == chat_id):
         coefficients[k.full_name] = round(k.pidor_coefficient / coef_sum * 100, 2)
     db.close()
     return coefficients

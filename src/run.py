@@ -5,7 +5,7 @@ import messages
 import stickers
 import peewee
 import os
-from models import db, Members, PidorStats, Stats, CurrentPidor, CurrentNice, CarmicDicesEnabled
+from models import db, Member, PidorStats, Stats, CurrentPidor, CurrentNice, CarmicDicesEnabled
 from db_functions import (create_user, unreg_in_data, is_not_time_expired, are_carmic_dices_enabled, update_pidor_stats,
                           get_current_user, get_user_percentage_nice_pidor, get_pidor_stats, get_all_members,
                           get_random_id, get_random_id_carmic, get_full_name_from_db, get_nickname_from_db,
@@ -27,11 +27,14 @@ async def reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_info = await context.bot.get_chat_member(chat_id, reg_member)
     user_full_name = user_info.user.full_name
     user_nickname = user_info.user.username
+
     success_or_not = create_user(chat_id, reg_member, user_full_name, user_nickname)
+
     if success_or_not:
         message = f"{user_full_name}, ты в игре"
     else:
         message = f"{user_full_name}, зачем тебе регаться ещё раз?"
+
     await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 
@@ -326,7 +329,7 @@ async def switch_on_carmic_dices_in_chat(update: Update, context: ContextTypes.D
 if __name__ == '__main__':
     try:
         db.connect()
-        Members.create_table()
+        Member.create_table()
         PidorStats.create_table()
         Stats.create_table()
         CurrentPidor.create_table()

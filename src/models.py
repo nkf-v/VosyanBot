@@ -18,9 +18,10 @@ db = MySQLDatabase(
 )
 
 
-class Members(Model):
+class Member(Model):
     class Meta:
         database = db
+        table_name = 'members'
         order_by = ('chat_id',)
 
     chat_id = BigIntegerField()
@@ -38,7 +39,7 @@ class PidorStats(Model):
 
     chat_id = BigIntegerField()
     member_id = BigIntegerField()
-    count = IntegerField()
+    count = IntegerField(default=0)
 
 
 class Stats(Model):
@@ -48,7 +49,7 @@ class Stats(Model):
 
     chat_id = BigIntegerField()
     member_id = BigIntegerField()
-    count = IntegerField()
+    count = IntegerField(default=0)
 
 
 class CurrentPidor(Model):
