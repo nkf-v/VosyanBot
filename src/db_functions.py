@@ -4,7 +4,7 @@ import datetime
 
 from peewee import fn
 
-from models import db, Member, Stats, PidorStats, CurrentPidor, CurrentNice, CarmicDicesEnabled
+from src.models import db, Member, Stats, PidorStats, CurrentPidor, CurrentNice, CarmicDicesEnabled
 
 
 def create_user(chat_id, user_id, user_full_name, user_nickname):
