@@ -1,4 +1,4 @@
-from models import Member, Stats, PidorStats, CurrentNice, CurrentPidor
+from src.models import Member, Stats, PidorStats, CurrentNice, CurrentPidor, Event
 from peewee import DoesNotExist
 
 
@@ -65,3 +65,23 @@ class CurrentPidorRepository:
             ).get()
         except DoesNotExist:
             return None
+
+class EventRepository:
+    def save(self, event: Event):
+        event.save()
+
+    def getListByChatAndMember(self, chat_id: int, member_id: int):
+        return Event.select().where(
+            (Event.chat_id == chat_id)
+        ).where(
+            (Event.member_id == member_id)
+        )
+
+    def getById(self, event_id: int):
+        try:
+            return Event.get_by_id(event_id)
+        except DoesNotExist:
+            return None
+
+    def deleteById(self, event: Event):
+        event.delete()

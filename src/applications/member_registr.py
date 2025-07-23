@@ -1,6 +1,5 @@
-from db_functions import create_user
-from models import Member, Stats, PidorStats, CurrentNice, CurrentPidor
-from repositories import (
+from src.models import Member, Stats, PidorStats, CurrentNice, CurrentPidor
+from src.repositories import (
     MemberRepository,
     StatsRepository,
     PidorStsatsRepository,
@@ -47,7 +46,7 @@ class MemberRegistration:
         member = self.member_repository.findByChatAndId(chat_id=params.chat_id, member_id=params.member_id)
 
         if member is not None:
-            # Выделить формирование текста 
+            # Выделить формирование текста
             return f"{params.user_full_name}, ты дурачек? Зачем ты регаешься ещё раз?"
 
         member = Member(

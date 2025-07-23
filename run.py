@@ -5,8 +5,8 @@ import messages
 import stickers
 import peewee
 import os
-from models import db, Member, PidorStats, Stats, CurrentPidor, CurrentNice, CarmicDicesEnabled
-from db_functions import (create_user, unreg_in_data, is_not_time_expired, are_carmic_dices_enabled, update_pidor_stats,
+from src.models import db, Member, PidorStats, Stats, CurrentPidor, CurrentNice, CarmicDicesEnabled
+from src.db_functions import (create_user, unreg_in_data, is_not_time_expired, are_carmic_dices_enabled, update_pidor_stats,
                           get_current_user, get_user_percentage_nice_pidor, get_pidor_stats, get_all_members,
                           get_random_id, get_random_id_carmic, get_full_name_from_db, get_nickname_from_db,
                           get_all_chat_ids, add_chat_to_carmic_dices_in_db, remove_chat_from_carmic_dices_in_db,
