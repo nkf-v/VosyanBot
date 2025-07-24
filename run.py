@@ -1,4 +1,5 @@
 import logging
+from logging.handlers import TimedRotatingFileHandler
 import time
 import telegram.error
 import src.messages as messages
@@ -15,11 +16,28 @@ from src.db_functions import (create_user, unreg_in_data, is_not_time_expired, a
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
+# TODO Инициализацию логера и перехват исключений убрать в отдельные классы
+formatter = logging.Formatter('%(asctime)s : %(levelname)s - %(message)s')
 
+handler = TimedRotatingFileHandler(
+    'bot.log',
+    when='midnight',
+    interval=1,
+    backupCount=0,
+)
+handler.setFormatter(formatter)
+
+logger = logging.getLogger('bot')
+logger.setLevel(logging.INFO)
+logger.addHandler(handler)
+
+def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
+    logger.error(
+        "Uncaught exception, application will terminate.",
+        exc_info=(exc_type, exc_value, exc_traceback),
+    )
+
+sys.excepthook = handle_uncaught_exception
 
 async def reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
