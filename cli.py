@@ -1,5 +1,7 @@
 import typer
 import time
+
+from src.applications.events.update import EventUpdate, EventUpdateParams
 from src.applications.member_registr import MemberRegistration, MemberRegistrationDto
 from src.applications.events.create import CreateEvenParams, CreateEvent
 from src.applications.events.get_list import GetEventList
@@ -82,6 +84,21 @@ def event_delete(event_id: int, chat_id: int, member_id: int):
         chat_id=chat_id,
         member_id=member_id,
     )
+
+    typer.echo(message)
+
+@app.command()
+def event_update(event_id: int, chat_id: int, member_id: int, text: str):
+    update = EventUpdate(
+        repository=EventRepository()
+    )
+
+    message = update.execute(EventUpdateParams(
+        event_id=event_id,
+        chat_id=chat_id,
+        member_id=member_id,
+        text=text
+    ))
 
     typer.echo(message)
 
