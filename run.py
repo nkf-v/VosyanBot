@@ -1,8 +1,8 @@
 import logging
 import time
 import telegram.error
-import src.messages
-import src.stickers
+import src.messages as messages
+import src.stickers as stickers
 import peewee
 import os
 from src.models import db, Member, PidorStats, Stats, CurrentPidor, CurrentNice, CarmicDicesEnabled
