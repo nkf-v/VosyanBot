@@ -16,7 +16,7 @@ class GetEventList:
         if event_list.count() == 0:
             return ["Ты бездельник!"]
 
-        result = ["Ваш список дел:"]
+        result = ["Твой список бесполезных дел:"]
         for event in event_list:
             result.append(f"- ID: {event.get_id()} - {event.text}")
 

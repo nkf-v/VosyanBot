@@ -13,6 +13,7 @@ class CreateEvenParams:
 
 class CreateEvent:
     event_repository: EventRepository
+
     def __init__(self, repository: EventRepository):
         self.event_repository = repository
 

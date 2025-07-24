@@ -16,6 +16,6 @@ class EventDelete:
         try:
             self.repository.deleteById(event)
         except:
-            return "Что-то пошло не так. Попробуй позже"
+            return "Что-то пошло не так. Пойди погуляй, траву потрогай"
 
         return "Событие удалено"
