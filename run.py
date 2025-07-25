@@ -27,20 +27,31 @@ from src.repositories import (
     CurrentPidorRepository
 )
 
-# TODO Инициализацию логера и перехват исключений убрать в отдельные классы
-formatter = logging.Formatter('%(asctime)s : %(levelname)s - %(message)s')
+def setup_logger():
+    # TODO Инициализацию логера и перехват исключений убрать в отдельные классы
+    formatter = logging.Formatter('%(asctime)s : %(levelname)s - %(message)s')
 
-handler = TimedRotatingFileHandler(
-    'bot.log',
-    when='midnight',
-    interval=1,
-    backupCount=0,
-)
-handler.setFormatter(formatter)
+    file_handler = TimedRotatingFileHandler(
+        'bot.log',
+        when='midnight',
+        interval=1,
+        backupCount=0,
+    )
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.INFO)
 
-logger = logging.getLogger('bot')
-logger.setLevel(logging.INFO)
-logger.addHandler(handler)
+    console_handler = logging.StreamHandler()
+    file_handler.setFormatter(formatter)
+    console_handler.setLevel(logging.INFO)
+
+    logger = logging.getLogger('bot')
+    logger.setLevel(logging.INFO)
+    logger.addHandler(file_handler)
+    logger.addHandler(file_handler)
+
+    return logger
+
+logger = setup_logger()
 
 def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
     logger.error(
@@ -79,11 +90,10 @@ async def reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def unreg(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
-    reg_member = update.message.from_user.id
-    logger.info(f"Unreg {reg_member}")
+    member_id = update.message.from_user.id
+    logger.info(f"Unreg {member_id}")
 
-    user_info = await context.bot.get_chat_member(chat_id, reg_member)
-    message = unreg_in_data(chat_id, reg_member)
+    message = unreg_in_data(chat_id, member_id)
 
     logger.info(f"Unreg message '{message}'")
     if message == 'Пользователь не найден':
@@ -93,13 +103,13 @@ async def unreg(update: Update, context: ContextTypes.DEFAULT_TYPE):
             logger.error(f"User not found")
     else:
         try:
-            user_full_name = get_full_name_from_db(chat_id, reg_member)
+            user_full_name = get_full_name_from_db(chat_id, member_id)
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
                 text=f'{user_full_name} c позором бежал, но статистика всё помнит'
             )
         except:
-            logger.error(f"Failed sen message '{message}'")
+            logger.error(f"Failed send message '{message}'")
 
 
 async def pidor(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -382,7 +392,15 @@ if __name__ == '__main__':
     except peewee.InternalError as px:
         print(str(px))
 
-    application = ApplicationBuilder().token(os.getenv('BOT_TOKEN')).build()
+    # Уменьшаем логирование от библиотек
+    logging.getLogger("telegram").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+
+    application = (
+        ApplicationBuilder()
+        .token(os.getenv('BOT_TOKEN'))
+        .build()
+    )
 
     reg_handler = CommandHandler('reg', reg)
     unreg_handler = CommandHandler('unreg', unreg)
