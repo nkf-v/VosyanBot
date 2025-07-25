@@ -80,22 +80,26 @@ async def reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def unreg(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
     reg_member = update.message.from_user.id
-    if (chat_id == -457200309) and (reg_member == 435466570):
-        await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text=f'Сане выйти нельзя, ничего не поделаешь')
-    else:
-        user_info = await context.bot.get_chat_member(chat_id, reg_member)
-        message = unreg_in_data(chat_id, reg_member)
-        if message == 'Пользователь не найден':
+    logger.info(f"Unreg {reg_member}")
+
+    user_info = await context.bot.get_chat_member(chat_id, reg_member)
+    message = unreg_in_data(chat_id, reg_member)
+
+    logger.info(f"Unreg message '{message}'")
+    if message == 'Пользователь не найден':
+        try:
             await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
-        else:
-            try:
-                await context.bot.send_message(chat_id=update.effective_chat.id,
-                                               text=f'{user_info.user.full_name} c позором бежал, но статистика всё помнит')
-            except telegram.error.BadRequest:
-                user_full_name = get_full_name_from_db(chat_id, reg_member)
-                await context.bot.send_message(chat_id=update.effective_chat.id,
-                                               text=f'{user_full_name} c позором бежал, но статистика всё помнит')
+        except:
+            logger.error(f"User not found")
+    else:
+        try:
+            user_full_name = get_full_name_from_db(chat_id, reg_member)
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=f'{user_full_name} c позором бежал, но статистика всё помнит'
+            )
+        except:
+            logger.error(f"Failed sen message '{message}'")
 
 
 async def pidor(update: Update, context: ContextTypes.DEFAULT_TYPE):
