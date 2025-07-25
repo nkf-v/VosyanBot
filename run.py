@@ -7,15 +7,25 @@ import src.stickers as stickers
 import peewee
 import os
 import sys
+
+from src.applications.member_registr import MemberRegistration, MemberRegistrationDto
 from src.models import db, Member, PidorStats, Stats, CurrentPidor, CurrentNice, CarmicDicesEnabled
-from src.db_functions import (create_user, unreg_in_data, is_not_time_expired, are_carmic_dices_enabled, update_pidor_stats,
+from src.db_functions import (unreg_in_data, is_not_time_expired, are_carmic_dices_enabled, update_pidor_stats,
                           get_current_user, get_user_percentage_nice_pidor, get_pidor_stats, get_all_members,
                           get_random_id, get_random_id_carmic, get_full_name_from_db, get_nickname_from_db,
-                          get_all_chat_ids, add_chat_to_carmic_dices_in_db, remove_chat_from_carmic_dices_in_db,
+                          add_chat_to_carmic_dices_in_db, remove_chat_from_carmic_dices_in_db,
                           reset_stats_data, set_full_name_and_nickname_in_db, update_current,
                           get_chat_members_nice_coefficients, get_chat_members_pidor_coefficients)
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler, MessageHandler, filters
+
+from src.repositories import (
+    MemberRepository,
+    StatsRepository,
+    PidorStsatsRepository,
+    CurrentNiceRepository,
+    CurrentPidorRepository
+)
 
 # TODO Инициализацию логера и перехват исключений убрать в отдельные классы
 formatter = logging.Formatter('%(asctime)s : %(levelname)s - %(message)s')
@@ -42,19 +52,29 @@ sys.excepthook = handle_uncaught_exception
 
 async def reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
-    reg_member = update.message.from_user.id
-    user_info = await context.bot.get_chat_member(chat_id, reg_member)
+    member_id = update.message.from_user.id
+    user_info = await context.bot.get_chat_member(chat_id, member_id)
     user_full_name = user_info.user.full_name
     user_nickname = user_info.user.username
 
-    success_or_not = create_user(chat_id, reg_member, user_full_name, user_nickname)
+    registration = MemberRegistration(
+        member_repository=MemberRepository(),
+        stats_repository=StatsRepository(),
+        pidor_stats_repository=PidorStsatsRepository(),
+        current_nice_repository=CurrentNiceRepository(),
+        current_pidor_repository=CurrentPidorRepository()
+    )
 
-    if success_or_not:
-        message = f"{user_full_name}, ты в игре"
-    else:
-        message = f"{user_full_name}, зачем тебе регаться ещё раз?"
+    message = registration.execute(
+        params=MemberRegistrationDto(
+            chat_id=chat_id,
+            member_id=member_id,
+            user_full_name=user_full_name,
+            user_nickname=user_nickname
+        )
+    )
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+    await context.bot.send_message(chat_id=chat_id, text=message)
 
 
 async def unreg(update: Update, context: ContextTypes.DEFAULT_TYPE):
