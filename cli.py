@@ -2,10 +2,11 @@ import typer
 import time
 
 from src.applications.events.update import EventUpdate, EventUpdateParams
-from src.applications.member_registr import MemberRegistration, MemberRegistrationDto
+from src.applications.members.registry import MemberRegistration, MemberRegistrationDto
 from src.applications.events.create import CreateEvenParams, CreateEvent
 from src.applications.events.get_list import GetEventList
 from src.applications.events.delete import EventDelete
+from src.applications.members.unregister import MemberUnregister
 
 from src.infrastructure.db_init import DBInit
 from src.models import db
@@ -42,6 +43,14 @@ def reg(chat_id: int, member_id: int):
             user_nickname="cli"
         )
     )
+    typer.echo(message)
+
+@app.command()
+def unreg(chat_id: int, member_id: int):
+    unreg = MemberUnregister(
+        repository=MemberRepository()
+    )
+    message = unreg.execute(chat_id, member_id)
     typer.echo(message)
 
 @app.command()

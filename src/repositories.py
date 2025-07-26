@@ -6,13 +6,16 @@ class MemberRepository:
     def save(self, member: Member):
         member.save()
 
-    def findByChatAndId(self, chat_id: int, member_id: int):
+    def findByChatAndId(self, chat_id: int, member_id: int) -> Member | None:
         try:
             return Member.select().where(
                 (Member.chat_id == chat_id) & (Member.member_id == member_id)
             ).get()
         except DoesNotExist:
             return None
+
+    def delete(self, member: Member):
+        member.delete_instance()
 
 
 class StatsRepository:

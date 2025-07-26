@@ -8,7 +8,9 @@ import peewee
 import os
 import sys
 
-from src.applications.member_registr import MemberRegistration, MemberRegistrationDto
+from src.applications.members.registry import MemberRegistration, MemberRegistrationDto
+from src.applications.members.unregister import MemberUnregister
+
 from src.models import db, Member, PidorStats, Stats, CurrentPidor, CurrentNice, CarmicDicesEnabled
 from src.db_functions import (unreg_in_data, is_not_time_expired, are_carmic_dices_enabled, update_pidor_stats,
                           get_current_user, get_user_percentage_nice_pidor, get_pidor_stats, get_all_members,
@@ -44,12 +46,12 @@ def setup_logger():
     file_handler.setFormatter(formatter)
     console_handler.setLevel(logging.INFO)
 
-    logger = logging.getLogger('bot')
-    logger.setLevel(logging.INFO)
-    logger.addHandler(file_handler)
-    logger.addHandler(file_handler)
+    result_logger = logging.getLogger('bot')
+    result_logger.setLevel(logging.INFO)
+    result_logger.addHandler(file_handler)
+    result_logger.addHandler(file_handler)
 
-    return logger
+    return result_logger
 
 logger = setup_logger()
 
@@ -76,6 +78,8 @@ async def reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
         current_pidor_repository=CurrentPidorRepository()
     )
 
+    db.connect()
+
     message = registration.execute(
         params=MemberRegistrationDto(
             chat_id=chat_id,
@@ -85,31 +89,43 @@ async def reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     )
 
-    await context.bot.send_message(chat_id=chat_id, text=message)
+    db.close()
+
+    try:
+        await context.bot.send_message(chat_id=chat_id, text=message)
+    except:
+        logger.error(f"Failed send message {message}")
 
 
 async def unreg(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
     member_id = update.message.from_user.id
+
     logger.info(f"Unreg {member_id}")
 
-    message = unreg_in_data(chat_id, member_id)
+    member_repository = MemberRepository()
+    unregister = MemberUnregister(
+        repository=member_repository
+    )
+
+    db.connect()
+
+    message = unregister.execute(
+        chat_id=chat_id,
+        member_id=member_id
+    )
+
+    db.close()
 
     logger.info(f"Unreg message '{message}'")
-    if message == 'Пользователь не найден':
-        try:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
-        except:
-            logger.error(f"User not found")
-    else:
-        try:
-            user_full_name = get_full_name_from_db(chat_id, member_id)
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=f'{user_full_name} c позором бежал, но статистика всё помнит'
-            )
-        except:
-            logger.error(f"Failed send message '{message}'")
+
+    try:
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=message
+        )
+    except:
+        logger.error(f"Failed send message '{message}'")
 
 
 async def pidor(update: Update, context: ContextTypes.DEFAULT_TYPE):

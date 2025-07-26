@@ -47,10 +47,8 @@ def create_user(chat_id, user_id, user_full_name, user_nickname):
 
 
 def unreg_in_data(chat_id, user_id):
-    db.connect()
     query = Member.delete().where((Member.chat_id == chat_id) & (Member.member_id == user_id))
     deleted_rows = query.execute()
-    db.close()
     if deleted_rows == 0:
         return 'Пользователь не найден'
     else:
