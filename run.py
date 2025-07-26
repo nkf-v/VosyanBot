@@ -396,18 +396,6 @@ async def switch_on_carmic_dices_in_chat(update: Update, context: ContextTypes.D
 
 
 if __name__ == '__main__':
-    try:
-        db.connect()
-        Member.create_table()
-        PidorStats.create_table()
-        Stats.create_table()
-        CurrentPidor.create_table()
-        CurrentNice.create_table()
-        CarmicDicesEnabled.create_table()
-        db.close()
-    except peewee.InternalError as px:
-        print(str(px))
-
     # Уменьшаем логирование от библиотек
     logging.getLogger("telegram").setLevel(logging.WARNING)
     logging.getLogger("httpx").setLevel(logging.WARNING)

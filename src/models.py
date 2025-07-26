@@ -87,3 +87,10 @@ class Event(Model):
     chat_id = BigIntegerField()
     member_id = BigIntegerField()
     text = TextField()
+
+class EventMember(Model):
+    class Meta:
+        database = db
+
+    event_id = BigIntegerField()
+    member_id = BigIntegerField()

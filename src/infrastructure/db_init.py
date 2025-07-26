@@ -1,4 +1,4 @@
-from src.models import Event, CarmicDicesEnabled, CurrentNice, CurrentPidor, Stats, PidorStats, Member
+from src.models import Event, CarmicDicesEnabled, CurrentNice, CurrentPidor, Stats, PidorStats, Member, EventMember
 
 
 class DBInit:
@@ -10,3 +10,4 @@ class DBInit:
         CurrentNice.create_table()
         CarmicDicesEnabled.create_table()
         Event.create_table()
+        EventMember.create_table()

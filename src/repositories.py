@@ -1,4 +1,4 @@
-from src.models import Member, Stats, PidorStats, CurrentNice, CurrentPidor, Event
+from src.models import Member, Stats, PidorStats, CurrentNice, CurrentPidor, Event, EventMember
 from peewee import DoesNotExist
 
 
@@ -88,3 +88,7 @@ class EventRepository:
 
     def deleteById(self, event: Event):
         event.delete()
+
+class EventMemberRepository:
+    def save(self, event_member: EventMember):
+        event_member.save()
