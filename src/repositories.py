@@ -92,3 +92,6 @@ class EventRepository:
 class EventMemberRepository:
     def save(self, event_member: EventMember):
         event_member.save()
+
+    def getListByEventId(self, event_id: int):
+        return EventMember.select().where((EventMember.event_id == event_id))
