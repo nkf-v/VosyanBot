@@ -80,14 +80,14 @@ class EventRepository:
             (Event.member_id == member_id)
         )
 
-    def getById(self, event_id: int):
+    def getById(self, event_id: int) -> Event | None:
         try:
             return Event.get_by_id(event_id)
         except DoesNotExist:
             return None
 
-    def deleteById(self, event: Event):
-        event.delete()
+    def delete(self, event: Event):
+        event.delete_instance()
 
 class EventMemberRepository:
     def save(self, event_member: EventMember):
