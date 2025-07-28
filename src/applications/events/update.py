@@ -34,4 +34,4 @@ class EventUpdate:
         except:
             return "Что-то пошло не так. Пойди погуляй, траву потрогай"
 
-        return f"Событие обновлено\n- ID: {event.id} - {event.text}"
+        return f"Событие обновлено\n- ID: {event.get_id()} - {event.text}"
