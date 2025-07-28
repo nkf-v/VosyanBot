@@ -16,7 +16,8 @@ from src.repositories import (
     PidorStsatsRepository,
     CurrentNiceRepository,
     CurrentPidorRepository,
-    EventRepository
+    EventRepository,
+    EventMemberRepository
 )
 
 app = typer.Typer()
@@ -61,7 +62,8 @@ def db_init():
 @app.command()
 def event_create(chat_id: int, member_id: int, text: str):
     creator = CreateEvent(
-        repository=EventRepository()
+        event_repository=EventRepository(),
+        event_member_repository=EventMemberRepository()
     )
     message = creator.execute(
         params=CreateEvenParams(
