@@ -94,3 +94,5 @@ class EventMember(Model):
 
     event_id = BigIntegerField()
     member_id = BigIntegerField()
+    nick_name = CharField()
+    user_name = CharField()

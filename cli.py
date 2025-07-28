@@ -67,7 +67,9 @@ def event_create(chat_id: int, member_id: int, text: str):
         params=CreateEvenParams(
             chat_id=chat_id,
             member_id=member_id,
-            text=text
+            text=text,
+            nick_name='cli',
+            user_name='cli'
         )
     )
     typer.echo(message)

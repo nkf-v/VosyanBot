@@ -5,11 +5,22 @@ class CreateEvenParams:
     chat_id: int
     member_id: int
     text: str
+    nick_name: str
+    user_name: str
 
-    def __init__(self, chat_id: int, member_id: int, text: str):
+    def __init__(
+        self,
+        chat_id: int,
+        member_id: int,
+        text: str,
+        nick_name: str,
+        user_name: str
+    ):
         self.chat_id = chat_id
         self.member_id = member_id
         self.text = text
+        self.nick_name = nick_name
+        self.user_name = user_name
 
 class CreateEvent:
     event_repository: EventRepository
@@ -29,7 +40,9 @@ class CreateEvent:
             self.event_repository.save(event)
             self.event_member_repository.save(EventMember(
                 event_id=event.get_id(),
-                member_id=event.member_id
+                member_id=event.member_id,
+                nick_name=params.nick_name,
+                user_name=params.user_name
             ))
         except:
             return 'Что-то пошло не так. Попробуйте позже.'
