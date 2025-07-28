@@ -1,3 +1,4 @@
+import peeweedbevolve
 from peewee import *
 from os import getenv, path
 from dotenv import load_dotenv
