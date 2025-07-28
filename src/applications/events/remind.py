@@ -22,7 +22,7 @@ class EventRemind:
         event = self.event_repository.getById(params.event_id)
 
         if event is None or event.chat_id != params.chat_id:
-            return 'Такого события не существует'
+            return 'Событие не найдено'
 
         event_members = self.event_member_repository.getListByEventId(params.event_id)
         is_event_member = False
