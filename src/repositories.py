@@ -105,3 +105,6 @@ class EventMemberRepository:
             ).get()
         except DoesNotExist:
             return None
+
+    def delete(self, member: EventMember):
+        member.delete_instance()
