@@ -95,3 +95,13 @@ class EventMemberRepository:
 
     def getListByEventId(self, event_id: int):
         return EventMember.select().where((EventMember.event_id == event_id))
+
+    def getOneByEventAndMemberId(self, event_id: int, member_id: int):
+        try:
+            return EventMember.select().where(
+                (EventMember.event_id == event_id)
+            ).where(
+                (EventMember.member_id == member_id)
+            ).get()
+        except DoesNotExist:
+            return None

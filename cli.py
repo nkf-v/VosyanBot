@@ -1,6 +1,7 @@
 import typer
 import time
 
+from src.applications.event_members.invite import EventMemberInvite, EventMemberInviteParams
 from src.applications.events.remind import EventRemindParams, EventRemind
 from src.applications.events.update import EventUpdate, EventUpdateParams
 from src.applications.members.registry import MemberRegistration, MemberRegistrationDto
@@ -130,6 +131,25 @@ def event_remind(event_id: int, chat_id: int, member_id: int):
     )
 
     message = remind.execute(params)
+
+    typer.echo(message)
+
+@app.command()
+def event_invite(event_id: int, chat_id: int, member_id: int):
+    invite = EventMemberInvite(
+        event_repository=EventRepository(),
+        event_member_repository=EventMemberRepository()
+    )
+
+    params = EventMemberInviteParams(
+        event_id=event_id,
+        chat_id=chat_id,
+        member_id=member_id,
+        nick_name='cli',
+        user_name='cli'
+    )
+
+    message = invite.execute(params)
 
     typer.echo(message)
 
