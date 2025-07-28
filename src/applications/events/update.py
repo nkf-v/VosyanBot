@@ -21,10 +21,10 @@ class EventUpdate:
     def execute(self, params: EventUpdateParams):
         event = self.repository.getById(event_id=params.event_id)
 
-        if event is None:
-            return 'Нет такого события'
+        if event is None or event.chat_id != params.chat_id:
+            return 'Событие не найдено'
 
-        if event.chat_id != params.chat_id or event.member_id != params.member_id:
+        if event.member_id != params.member_id:
             return "Не твое, не трожь"
 
         event.text = params.text
