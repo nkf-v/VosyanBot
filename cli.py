@@ -92,8 +92,10 @@ def events(chat_id: int, member_id: int):
 @app.command()
 def event_delete(event_id: int, chat_id: int, member_id: int):
     delete = EventDelete(
-        repository=EventRepository()
+        repository=EventRepository(),
+        event_member_repository=EventMemberRepository()
     )
+
     message = delete.execute(
         event_id=event_id,
         chat_id=chat_id,
