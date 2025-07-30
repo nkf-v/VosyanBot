@@ -1,10 +1,11 @@
 import logging
-from logging.handlers import TimedRotatingFileHandler
 import time
 import telegram.error
+
+import src.infrastructure.logger_init
 import src.messages as messages
 import src.stickers as stickers
-import peewee
+
 import os
 import sys
 
@@ -29,32 +30,7 @@ from src.repositories import (
     CurrentPidorRepository
 )
 
-def setup_logger():
-    # TODO Инициализацию логера и перехват исключений убрать в отдельные классы
-    formatter = logging.Formatter('%(asctime)s : %(levelname)s - %(message)s')
-
-    file_handler = TimedRotatingFileHandler(
-        'bot.log',
-        when='midnight',
-        interval=1,
-        backupCount=0,
-    )
-    file_handler.setFormatter(formatter)
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(formatter)
-
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(formatter)
-
-    result_logger = logging.getLogger('bot')
-    result_logger.setLevel(logging.INFO)
-    result_logger.addHandler(file_handler)
-    result_logger.addHandler(console_handler)
-
-    return result_logger
-
-logger = setup_logger()
+logger = src.infrastructure.logger_init.logger_init()
 
 def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
     logger.error(
