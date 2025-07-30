@@ -11,6 +11,7 @@ import sys
 
 from src.applications.members.registry import MemberRegistration, MemberRegistrationDto
 from src.applications.members.unregister import MemberUnregister
+import src.presenters.commands.telegram as telegram_commands
 
 from src.models import db, Member, PidorStats, Stats, CurrentPidor, CurrentNice, CarmicDicesEnabled
 from src.db_functions import (unreg_in_data, is_not_time_expired, are_carmic_dices_enabled, update_pidor_stats,
@@ -396,6 +397,7 @@ if __name__ == '__main__':
     switch_on_carmic_dices_in_chat_handler = CommandHandler('carmicdices', switch_on_carmic_dices_in_chat)
 
     application.add_handlers([
+        # pird
         reg_handler,
         unreg_handler,
         pidor_handler,
@@ -407,6 +409,10 @@ if __name__ == '__main__':
         nice_coefficients_handler,
         pidor_coefficients_handler,
         switch_on_carmic_dices_in_chat_handler,
+        # events
+        CommandHandler('eventcreate', telegram_commands.event_create),
+        CommandHandler('events', telegram_commands.events),
+        # query
         CallbackQueryHandler(confirm_dialogs)
     ])
 
