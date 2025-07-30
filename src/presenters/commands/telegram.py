@@ -9,12 +9,18 @@ from src.repositories import EventRepository, EventMemberRepository
 logger = logger_init()
 
 async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = context.args[0] if context.args else ''
+
+    if text == '':
+        return 'Придумай название своему бесполезному событию'
+
     chat_id = update.message.chat_id
     member_id = update.message.from_user.id
+
     user_info = await context.bot.get_chat_member(chat_id, member_id)
     user_name = user_info.user.full_name
     nick_name = user_info.user.username
-    text = update.message.text
+
 
     event_create_executor = create.CreateEvent(
         event_repository=EventRepository(),
