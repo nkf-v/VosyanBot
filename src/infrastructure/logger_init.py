@@ -25,3 +25,5 @@ def logger_init():
     result_logger.addHandler(console_handler)
 
     return result_logger
+
+logger = logger_init()

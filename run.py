@@ -1,28 +1,24 @@
 import logging
-import time
-import telegram.error
-
-import src.infrastructure.logger_init
-import src.messages as messages
-import src.stickers as stickers
-
 import os
 import sys
+import time
 
-from src.applications.members.registry import MemberRegistration, MemberRegistrationDto
-from src.applications.members.unregister import MemberUnregister
-import src.presenters.commands.telegram as telegram_commands
-
-from src.models import db, Member, PidorStats, Stats, CurrentPidor, CurrentNice, CarmicDicesEnabled
-from src.db_functions import (unreg_in_data, is_not_time_expired, are_carmic_dices_enabled, update_pidor_stats,
-                          get_current_user, get_user_percentage_nice_pidor, get_pidor_stats, get_all_members,
-                          get_random_id, get_random_id_carmic, get_full_name_from_db, get_nickname_from_db,
-                          add_chat_to_carmic_dices_in_db, remove_chat_from_carmic_dices_in_db,
-                          reset_stats_data, set_full_name_and_nickname_in_db, update_current,
-                          get_chat_members_nice_coefficients, get_chat_members_pidor_coefficients)
+import telegram.error
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 
+import src.messages as messages
+import src.presenters.commands.telegram as telegram_commands
+import src.stickers as stickers
+from src.applications.members.registry import MemberRegistration, MemberRegistrationDto
+from src.applications.members.unregister import MemberUnregister
+from src.db_functions import (unreg_in_data, is_not_time_expired, are_carmic_dices_enabled, update_pidor_stats,
+                              get_current_user, get_user_percentage_nice_pidor, get_pidor_stats, get_all_members,
+                              get_random_id, get_random_id_carmic, get_full_name_from_db, get_nickname_from_db,
+                              add_chat_to_carmic_dices_in_db, remove_chat_from_carmic_dices_in_db,
+                              reset_stats_data, set_full_name_and_nickname_in_db, update_current,
+                              get_chat_members_nice_coefficients, get_chat_members_pidor_coefficients)
+from src.infrastructure.logger_init import logger
 from src.repositories import (
     MemberRepository,
     StatsRepository,
@@ -31,7 +27,6 @@ from src.repositories import (
     CurrentPidorRepository
 )
 
-logger = src.infrastructure.logger_init.logger_init()
 
 def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
     logger.error(
@@ -371,7 +366,6 @@ async def switch_on_carmic_dices_in_chat(update: Update, context: ContextTypes.D
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("Включить кармические кубики? Если они включены, у пидоров больше шансов стать "
                                     "красавчиками, а у красавчиков - стать пидорами", reply_markup=reply_markup)
-
 
 if __name__ == '__main__':
     # Уменьшаем логирование от библиотек

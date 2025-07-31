@@ -3,10 +3,8 @@ from telegram.ext import ContextTypes
 
 from src.applications.events import create
 from src.applications.events.get_list import GetEventList
-from src.infrastructure.logger_init import logger_init
+from src.infrastructure.logger_init import logger
 from src.repositories import EventRepository, EventMemberRepository
-
-logger = logger_init()
 
 async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = context.args[0] if context.args else ''
@@ -42,8 +40,6 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except:
         logger.error(f"Failed send message {message}")
 
-    pass
-
 async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
     member_id = update.message.from_user.id
@@ -51,6 +47,7 @@ async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
     getter = GetEventList(
         repository=EventRepository()
     )
+
     messages = getter.execute(
         chat_id=chat_id,
         member_id=member_id,
