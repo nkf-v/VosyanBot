@@ -26,13 +26,15 @@ from src.repositories import (
     CurrentNiceRepository,
     CurrentPidorRepository
 )
-
+from src.models import db
 
 def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
     logger.error(
         "Uncaught exception, application will terminate.",
         exc_info=(exc_type, exc_value, exc_traceback),
     )
+
+    db.close()
 
 sys.excepthook = handle_uncaught_exception
 
@@ -403,5 +405,7 @@ if __name__ == '__main__':
     ])
 
     application.add_handler(MessageHandler(filters.StatusUpdate.LEFT_CHAT_MEMBER, member_left))
+
+    db.connect(reuse_if_open=True)
 
     application.run_polling()

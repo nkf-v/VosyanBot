@@ -182,7 +182,7 @@ def sleep():
 
 if __name__ == "__main__":
     try:
-        db.connect()
+        db.connect(reuse_if_open=True)
         app()
     finally:    
         db.close()

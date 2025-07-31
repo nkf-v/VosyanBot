@@ -11,7 +11,7 @@ def create_user(chat_id, user_id, user_full_name, user_nickname):
 
     user_nickname = "NULL" if user_nickname == None else user_nickname
 
-    db.connect()
+    db.connect(reuse_if_open=True)
     is_user_in_chat = False
     for i in Member.select().where((Member.chat_id == chat_id) & (Member.member_id == user_id)):
         is_user_in_chat = True
@@ -56,14 +56,14 @@ def unreg_in_data(chat_id, user_id):
 
 
 def get_all_chat_ids():
-    db.connect()
+    db.connect(reuse_if_open=True)
     chat_ids = [i.chat_id for i in Member.select(Member.chat_id).distinct()]
     db.close()
     return chat_ids
 
 
 def get_all_members(chat_id):
-    db.connect()
+    db.connect(reuse_if_open=True)
     members = [i.member_id for i in Member.select(Member.member_id).where(Member.chat_id == chat_id)]
     db.close()
     return members
@@ -87,7 +87,7 @@ def get_random_id(chat_id, pidor_or_nice):
 
 
 def get_user_coefficient(chat_id, member_id, pidor_or_nice):
-    db.connect()
+    db.connect(reuse_if_open=True)
     coefficient = -1
     if pidor_or_nice == 'nice':
         for i in Member.select().where((Member.chat_id == chat_id) & (Member.member_id == member_id)):
@@ -154,7 +154,7 @@ def update_coefficient_for_users(chat_id, chosen_member, nice_or_pidor):
     if nice_or_pidor == 'pidor':
         if is_not_time_expired(chat_id, 'current_nice'):
             members.remove(get_current_user(chat_id, 'current_nice')['id'])
-    db.connect()
+    db.connect(reuse_if_open=True)
     current_coefficient_chosen = 10
     if nice_or_pidor == 'nice':
         for i in Member.select().where((Member.chat_id == chat_id) & (Member.member_id == chosen_member)):
@@ -191,7 +191,7 @@ def update_coefficient_for_users(chat_id, chosen_member, nice_or_pidor):
 
 
 def update_pidor_stats(chat_id, pidor_id, stats_type):
-    db.connect()
+    db.connect(reuse_if_open=True)
     current_stat = 0
     if stats_type == 'stats':
         for l in Stats.select().where((Stats.chat_id == chat_id) & (Stats.member_id == pidor_id)):
@@ -213,7 +213,7 @@ def update_pidor_stats(chat_id, pidor_id, stats_type):
 
 
 def get_pidor_stats(chat_id, stats_type):
-    db.connect()
+    db.connect(reuse_if_open=True)
     stats = {}
     if stats_type == 'stats':
         for p in Stats.select().where(Stats.chat_id == chat_id):
@@ -230,7 +230,7 @@ def get_pidor_stats(chat_id, stats_type):
 
 def get_user_percentage_nice_pidor(chat_id, member_id):
     nice = 0
-    db.connect()
+    db.connect(reuse_if_open=True)
     for i in Stats.select().where((Stats.chat_id == chat_id) & (Stats.member_id == member_id)):
         nice = i.count
     pidor = 0
@@ -254,7 +254,7 @@ def get_user_percentage_nice_pidor(chat_id, member_id):
 
 
 def reset_stats_data(chat_id):
-    db.connect()
+    db.connect(reuse_if_open=True)
     Stats.update(count=0).where(Stats.chat_id == chat_id).execute()
     PidorStats.update(count=0).where(PidorStats.chat_id == chat_id).execute()
     members_in_game = []
@@ -280,7 +280,7 @@ def reset_stats_data(chat_id):
 
 
 def update_current(chat_id, current_dict, user_id):
-    db.connect()
+    db.connect(reuse_if_open=True)
     if current_dict == 'current_nice':
         CurrentNice.update(member_id=user_id, timestamp=time.mktime(datetime.datetime.now().timetuple())).where\
             (CurrentNice.chat_id == chat_id).execute()
@@ -299,20 +299,20 @@ def is_not_time_expired(chat_id, type_of_current):
 
 def add_chat_to_carmic_dices_in_db(chat_id):
     if are_carmic_dices_enabled(chat_id) is False:
-        db.connect()
+        db.connect(reuse_if_open=True)
         CarmicDicesEnabled.create(chat_id=chat_id)
         db.close()
 
 
 def remove_chat_from_carmic_dices_in_db(chat_id):
     if are_carmic_dices_enabled(chat_id):
-        db.connect()
+        db.connect(reuse_if_open=True)
         CarmicDicesEnabled.delete().where(CarmicDicesEnabled.chat_id == chat_id)
         db.close()
 
 
 def are_carmic_dices_enabled(chat_id):
-    db.connect()
+    db.connect(reuse_if_open=True)
     carmic_dices_enabled = False
     for i in CarmicDicesEnabled.select().where(CarmicDicesEnabled.chat_id == chat_id):
         carmic_dices_enabled = True
@@ -321,7 +321,7 @@ def are_carmic_dices_enabled(chat_id):
 
 
 def get_current_user(chat_id, current_dict):
-    db.connect()
+    db.connect(reuse_if_open=True)
     current_user = {'id': 0, 'timestamp': 0}
     if current_dict == 'current_nice':
         for p in CurrentNice.select().where(CurrentNice.chat_id == chat_id):
@@ -339,14 +339,14 @@ def set_full_name_and_nickname_in_db(chat_id, member_id, fullname, nickname):
 
     nickname = "NULL" if nickname == None else nickname
 
-    db.connect()
+    db.connect(reuse_if_open=True)
     Member.update(full_name=fullname, nick_name=nickname).where((Member.chat_id == chat_id)
                                                                  & (Member.member_id == member_id)).execute()
     db.close()
 
 
 def get_full_name_from_db(chat_id, member_id):
-    db.connect()
+    db.connect(reuse_if_open=True)
     full_name = 'No full name found'
     for k in Member.select().where((Member.chat_id == chat_id) & (Member.member_id == member_id)):
         full_name = k.full_name
@@ -355,7 +355,7 @@ def get_full_name_from_db(chat_id, member_id):
 
 
 def get_nickname_from_db(chat_id, member_id):
-    db.connect()
+    db.connect(reuse_if_open=True)
     nick_name = 'No nickname found'
     for k in Member.select().where((Member.chat_id == chat_id) & (Member.member_id == member_id)):
         nick_name = k.nick_name
@@ -363,7 +363,7 @@ def get_nickname_from_db(chat_id, member_id):
     return nick_name
 
 def get_chat_members_nice_coefficients(chat_id):
-    db.connect()
+    db.connect(reuse_if_open=True)
     coefficients = {}
     coef_sum = Member.select(fn.SUM(Member.coefficient)).where(Member.chat_id == chat_id).scalar()
     for k in Member.select(Member.full_name, Member.coefficient).where(Member.chat_id == chat_id):
@@ -372,7 +372,7 @@ def get_chat_members_nice_coefficients(chat_id):
     return coefficients
 
 def get_chat_members_pidor_coefficients(chat_id):
-    db.connect()
+    db.connect(reuse_if_open=True)
     coefficients = {}
     coef_sum = Member.select(fn.SUM(Member.pidor_coefficient)).where(Member.chat_id == chat_id).scalar()
     for k in Member.select(Member.full_name, Member.pidor_coefficient).where(Member.chat_id == chat_id):
