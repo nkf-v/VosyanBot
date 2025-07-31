@@ -51,8 +51,6 @@ async def reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
         current_pidor_repository=CurrentPidorRepository()
     )
 
-    db.connect()
-
     message = registration.execute(
         params=MemberRegistrationDto(
             chat_id=chat_id,
@@ -61,8 +59,6 @@ async def reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user_nickname=user_nickname
         )
     )
-
-    db.close()
 
     try:
         await context.bot.send_message(chat_id=chat_id, text=message)
@@ -81,14 +77,10 @@ async def unreg(update: Update, context: ContextTypes.DEFAULT_TYPE):
         repository=member_repository
     )
 
-    db.connect()
-
     message = unregister.execute(
         chat_id=chat_id,
         member_id=member_id
     )
-
-    db.close()
 
     logger.info(f"Unreg message '{message}'")
 
