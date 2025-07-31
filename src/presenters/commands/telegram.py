@@ -7,7 +7,7 @@ from src.infrastructure.logger_init import logger
 from src.repositories import EventRepository, EventMemberRepository
 
 async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = context.args[0] if ' '.join(context.args) else ''
+    text = ' '.join(context.args) if context.args[0] else ''
 
     if text == '':
         return 'Придумай название своему бесполезному событию'
