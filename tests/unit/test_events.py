@@ -1,13 +1,12 @@
 from datetime import datetime
+from unittest.mock import AsyncMock
 
 import pytest
-
-from unittest.mock import Mock, MagicMock, AsyncMock
-
 from peewee import SqliteDatabase, Database
 from telegram import Update, Message, Chat, constants, User
-from src.presenters.commands.telegram import events, event_create, event_update
+
 from src.models import Event, EventMember
+from src.presenters.commands.telegram import events, event_create, event_update, event_delete
 
 MODELS = [Event, EventMember]
 
@@ -114,4 +113,34 @@ class TestEvents:
         mock_send_message.assert_called_once_with(
             chat_id=1,
             text=f"Событие обновлено\n- ID: 1 - Test"
+        )
+
+    @pytest.mark.asyncio
+    async def test_delete_command(self):
+        # Создаем мок Update
+        update = Update(
+            update_id=1,
+            message=Message(
+                message_id=1,
+                date=datetime(2025, 1, 1, 12, 0, 0),
+                text="/eventdelete 1",
+                chat=Chat(id=1, type=constants.ChatType.GROUP),
+                from_user=User(
+                    id=1,
+                    first_name='Name',
+                    is_bot=False,
+                )
+            )
+        )
+
+        mock_send_message = AsyncMock()
+        context = AsyncMock()
+        context.args = ['1']
+        context.bot.send_message = mock_send_message
+
+        await event_delete(update, context)
+
+        mock_send_message.assert_called_once_with(
+            chat_id=1,
+            text='Событие удалено'
         )
