@@ -401,6 +401,7 @@ if __name__ == '__main__':
         CommandHandler('events', telegram_commands.events),
         CommandHandler('eventcreate', telegram_commands.event_create),
         CommandHandler('eventupdate', telegram_commands.event_update),
+        CommandHandler('eventdelete', telegram_commands.event_delete),
         # query
         CallbackQueryHandler(confirm_dialogs)
     ])
