@@ -14,7 +14,8 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = ' '.join(context.args) if context.args[0] else ''
 
     if text == '':
-        await context.bot.send_message(chat_id=chat_id, text='Придумай название своему бесполезному событию')
+        context.bot.send_message(chat_id=chat_id, text='Придумай название своему бесполезному событию')
+        return
 
     user_info = await context.bot.get_chat_member(chat_id, member_id)
     user_name = user_info.user.full_name
@@ -70,14 +71,16 @@ async def event_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     event_id = args[0] if args[0] else 0
     if not event_id.isdigit() or event_id == 0:
-        await context.bot.send_message(chat_id=chat_id, text='Событие не найдено')
+        context.bot.send_message(chat_id=chat_id, text='Событие не найдено')
+        return
 
     args.pop(0)
 
     text = ' '.join(args) if args[0] else ''
 
     if text == '':
-        await context.bot.send_message(chat_id=chat_id, text='Придумай название своему бесполезному событию')
+        context.bot.send_message(chat_id=chat_id, text='Придумай название своему бесполезному событию')
+        return
 
     updater = EventUpdate(
         repository=EventRepository()
