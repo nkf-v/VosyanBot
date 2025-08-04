@@ -7,13 +7,13 @@ from src.infrastructure.logger_init import logger
 from src.repositories import EventRepository, EventMemberRepository
 
 async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.message.chat_id
+    member_id = update.message.from_user.id
+
     text = ' '.join(context.args) if context.args[0] else ''
 
     if text == '':
-        return 'Придумай название своему бесполезному событию'
-
-    chat_id = update.message.chat_id
-    member_id = update.message.from_user.id
+        await context.bot.send_message(chat_id=chat_id, text='Придумай название своему бесполезному событию')
 
     user_info = await context.bot.get_chat_member(chat_id, member_id)
     user_name = user_info.user.full_name
