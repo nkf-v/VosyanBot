@@ -4,6 +4,7 @@ from telegram.ext import ContextTypes
 from src.applications.events import create
 from src.applications.events.delete import EventDelete
 from src.applications.events.get_list import GetEventList
+from src.applications.events.remind import EventRemind, EventRemindParams
 from src.applications.events.update import EventUpdate, EventUpdateParams
 from src.infrastructure.logger_init import logger
 from src.repositories import EventRepository, EventMemberRepository
@@ -117,6 +118,34 @@ async def event_delete(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     message = deleter.execute(event_id, chat_id, member_id)
+
+    try:
+        await context.bot.send_message(chat_id=chat_id, text=message)
+    except:
+        logger.error(f"Failed send message {message}")
+
+
+async def event_remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.message.chat_id
+    member_id = update.message.from_user.id
+
+    event_id = context.args[0] if context.args[0] else 0
+    if not event_id.isdigit() or event_id == 0:
+        context.bot.send_message(chat_id=chat_id, text='Событие не найдено')
+        return
+
+    remind = EventRemind(
+        event_repository=EventRepository(),
+        event_member_repository=EventMemberRepository()
+    )
+
+    params = EventRemindParams(
+        event_id=event_id,
+        chat_id=chat_id,
+        member_id=member_id,
+    )
+
+    message = remind.execute(params)
 
     try:
         await context.bot.send_message(chat_id=chat_id, text=message)

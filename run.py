@@ -8,7 +8,10 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 
 import src.messages as messages
-import src.presenters.commands.telegram as telegram_commands
+
+from src.presenters.commands.telegram import events
+from src.presenters.commands.telegram import event_members
+
 import src.stickers as stickers
 from src.applications.members.registry import MemberRegistration, MemberRegistrationDto
 from src.applications.members.unregister import MemberUnregister
@@ -397,11 +400,18 @@ if __name__ == '__main__':
         nice_coefficients_handler,
         pidor_coefficients_handler,
         switch_on_carmic_dices_in_chat_handler,
+
         # events
-        CommandHandler('events', telegram_commands.events),
-        CommandHandler('eventcreate', telegram_commands.event_create),
-        CommandHandler('eventupdate', telegram_commands.event_update),
-        CommandHandler('eventdelete', telegram_commands.event_delete),
+        CommandHandler('events', events.events),
+        CommandHandler('eventcreate', events.event_create),
+        CommandHandler('eventupdate', events.event_update),
+        CommandHandler('eventdelete', events.event_delete),
+        CommandHandler('eventremind', events.event_remind),
+
+        #events members
+        CommandHandler('eventinvite', event_members.member_invite),
+        CommandHandler('eventleave', event_members.member_leave),
+
         # query
         CallbackQueryHandler(confirm_dialogs)
     ])
