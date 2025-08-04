@@ -3,6 +3,7 @@ from src.models import db
 
 class EventDelete:
     repository: EventRepository
+    event_member_repository: EventMemberRepository
 
     def __init__(self, repository: EventRepository, event_member_repository: EventMemberRepository):
         self.event_member_repository = event_member_repository
