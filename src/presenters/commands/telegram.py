@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 
 from src.applications.events import create
 from src.applications.events.get_list import GetEventList
+from src.applications.events.update import EventUpdate, EventUpdateParams
 from src.infrastructure.logger_init import logger
 from src.repositories import EventRepository, EventMemberRepository
 
@@ -54,6 +55,42 @@ async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     message = '\n'.join(messages)
+
+    try:
+        await context.bot.send_message(chat_id=chat_id, text=message)
+    except:
+        logger.error(f"Failed send message {message}")
+
+
+async def event_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.message.chat_id
+    member_id = update.message.from_user.id
+
+    args = context.args
+
+    event_id = args[0] if args[0] else 0
+    if not event_id.isdigit() or event_id == 0:
+        await context.bot.send_message(chat_id=chat_id, text='Событие не найдено')
+
+    args.pop(0)
+
+    text = ' '.join(args) if args[0] else ''
+
+    if text == '':
+        await context.bot.send_message(chat_id=chat_id, text='Придумай название своему бесполезному событию')
+
+    updater = EventUpdate(
+        repository=EventRepository()
+    )
+
+    params = EventUpdateParams(
+        chat_id=chat_id,
+        member_id=member_id,
+        event_id=event_id,
+        text=text,
+    )
+
+    message = updater.execute(params)
 
     try:
         await context.bot.send_message(chat_id=chat_id, text=message)

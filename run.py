@@ -398,8 +398,9 @@ if __name__ == '__main__':
         pidor_coefficients_handler,
         switch_on_carmic_dices_in_chat_handler,
         # events
-        CommandHandler('eventcreate', telegram_commands.event_create),
         CommandHandler('events', telegram_commands.events),
+        CommandHandler('eventcreate', telegram_commands.event_create),
+        CommandHandler('eventupdate', telegram_commands.event_update),
         # query
         CallbackQueryHandler(confirm_dialogs)
     ])
