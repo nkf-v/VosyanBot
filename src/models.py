@@ -15,15 +15,20 @@ db = MySQLDatabase(
     db_name,
     user=user,
     password=password,
-    host=db_host
+    host=db_host,
+    charset='utf8mb4',
+    collation='utf8mb4_unicode_ci'
 )
-
 
 class Member(Model):
     class Meta:
         database = db
         table_name = 'members'
         order_by = ('chat_id',)
+        table_settings = [
+            'DEFAULT CHARSET=utf8mb4',
+            'COLLATE=utf8mb4_unicode_ci'
+        ]
 
     chat_id = BigIntegerField()
     member_id = BigIntegerField()
@@ -37,6 +42,10 @@ class PidorStats(Model):
     class Meta:
         database = db
         order_by = ('chat_id',)
+        table_settings = [
+            'DEFAULT CHARSET=utf8mb4',
+            'COLLATE=utf8mb4_unicode_ci'
+        ]
 
     chat_id = BigIntegerField()
     member_id = BigIntegerField()
@@ -47,6 +56,10 @@ class Stats(Model):
     class Meta:
         database = db
         order_by = ('chat_id',)
+        table_settings = [
+            'DEFAULT CHARSET=utf8mb4',
+            'COLLATE=utf8mb4_unicode_ci'
+        ]
 
     chat_id = BigIntegerField()
     member_id = BigIntegerField()
@@ -67,6 +80,10 @@ class CurrentNice(Model):
     class Meta:
         database = db
         order_by = ('chat_id',)
+        table_settings = [
+            'DEFAULT CHARSET=utf8mb4',
+            'COLLATE=utf8mb4_unicode_ci'
+        ]
 
     chat_id = BigIntegerField()
     member_id = BigIntegerField()
@@ -77,6 +94,10 @@ class CarmicDicesEnabled(Model):
     class Meta:
         database = db
         order_by = ('chat_id',)
+        table_settings = [
+            'DEFAULT CHARSET=utf8mb4',
+            'COLLATE=utf8mb4_unicode_ci'
+        ]
 
     chat_id = BigIntegerField()
 
@@ -84,6 +105,10 @@ class Event(Model):
     class Meta:
         database = db
         order_by = ('chat_id',)
+        table_settings = [
+            'DEFAULT CHARSET=utf8mb4',
+            'COLLATE=utf8mb4_unicode_ci'
+        ]
 
     chat_id = BigIntegerField()
     member_id = BigIntegerField()
@@ -92,6 +117,10 @@ class Event(Model):
 class EventMember(Model):
     class Meta:
         database = db
+        table_settings = [
+            'DEFAULT CHARSET=utf8mb4',
+            'COLLATE=utf8mb4_unicode_ci'
+        ]
 
     event_id = BigIntegerField()
     member_id = BigIntegerField()
