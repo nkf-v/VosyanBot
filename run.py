@@ -365,10 +365,6 @@ async def switch_on_carmic_dices_in_chat(update: Update, context: ContextTypes.D
                                     "красавчиками, а у красавчиков - стать пидорами", reply_markup=reply_markup)
 
 if __name__ == '__main__':
-    # Уменьшаем логирование от библиотек
-    logging.getLogger("telegram").setLevel(logging.WARNING)
-    logging.getLogger("httpx").setLevel(logging.WARNING)
-
     application = (
         ApplicationBuilder()
         .token(os.getenv('BOT_TOKEN'))
