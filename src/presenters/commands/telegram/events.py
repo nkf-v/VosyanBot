@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 from src.applications.events import create
-from src.applications.events.delete import EventDelete
+from src.applications.events.delete import EventDelete, EventDeleteParams
 from src.applications.events.get_list import GetEventList
 from src.applications.events.remind import EventRemind, EventRemindParams
 from src.applications.events.update import EventUpdate, EventUpdateParams
@@ -30,11 +30,11 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     params = create.CreateEvenParams(
-        chat_id=chat_id,
-        member_id=member_id,
-        text=text,
-        nick_name=nick_name,
-        user_name=user_name,
+        chat_id,
+        member_id,
+        text,
+        nick_name,
+        user_name,
     )
 
     message = event_create_executor.execute(params)
@@ -89,10 +89,10 @@ async def event_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     params = EventUpdateParams(
-        chat_id=chat_id,
-        member_id=member_id,
-        event_id=event_id,
-        text=text,
+        chat_id,
+        member_id,
+        event_id,
+        text,
     )
 
     message = updater.execute(params)
@@ -117,7 +117,13 @@ async def event_delete(update: Update, context: ContextTypes.DEFAULT_TYPE):
         event_member_repository=EventMemberRepository()
     )
 
-    message = deleter.execute(event_id, chat_id, member_id)
+    params = EventDeleteParams(
+        event_id,
+        chat_id,
+        member_id,
+    )
+
+    message = deleter.execute(params)
 
     try:
         await context.bot.send_message(chat_id=chat_id, text=message)
@@ -140,9 +146,9 @@ async def event_remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     params = EventRemindParams(
-        event_id=event_id,
-        chat_id=chat_id,
-        member_id=member_id,
+        event_id,
+        chat_id,
+        member_id,
     )
 
     message = remind.execute(params)

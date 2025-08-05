@@ -1,14 +1,12 @@
+from dataclasses import dataclass
+
 from src.repositories import EventRepository, EventMemberRepository
 
+@dataclass
 class EventRemindParams:
     event_id: int
     chat_id: int
     member_id: int
-
-    def __init__(self, event_id: int, chat_id: int, member_id: int):
-        self.event_id = event_id
-        self.chat_id = chat_id
-        self.member_id = member_id
 
 class EventRemind:
     event_repository: EventRepository

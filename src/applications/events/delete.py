@@ -1,5 +1,13 @@
+from dataclasses import dataclass
+
 from src.repositories import EventRepository, EventMemberRepository
 from src.models import db
+
+@dataclass
+class EventDeleteParams:
+    event_id: int
+    chat_id: int
+    member_id: int
 
 class EventDelete:
     repository: EventRepository
@@ -9,16 +17,16 @@ class EventDelete:
         self.event_member_repository = event_member_repository
         self.repository = repository
 
-    def execute(self, event_id: int, chat_id: int, member_id: int):
-        event = self.repository.getById(event_id=event_id)
+    def execute(self, params: EventDeleteParams):
+        event = self.repository.getById(event_id=params.event_id)
 
-        if event is None or event.chat_id != chat_id:
+        if event is None or event.chat_id != params.chat_id:
             return 'Событие не найдено'
 
-        if event.member_id != member_id:
+        if event.member_id != params.member_id:
             return "Не твое, не трожь"
 
-        members = self.event_member_repository.getListByEventId(event_id)
+        members = self.event_member_repository.getListByEventId(params.event_id)
 
         try:
             with db.atomic():

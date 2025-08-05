@@ -1,26 +1,15 @@
+from dataclasses import dataclass
+
 from src.repositories import EventRepository, EventMemberRepository
 from src.models import Event, EventMember, db
 
+@dataclass
 class CreateEvenParams:
     chat_id: int
     member_id: int
     text: str
     nick_name: str
     user_name: str
-
-    def __init__(
-        self,
-        chat_id: int,
-        member_id: int,
-        text: str,
-        nick_name: str,
-        user_name: str
-    ):
-        self.chat_id = chat_id
-        self.member_id = member_id
-        self.text = text
-        self.nick_name = nick_name
-        self.user_name = user_name
 
 class CreateEvent:
     event_repository: EventRepository

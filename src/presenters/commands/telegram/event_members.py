@@ -26,11 +26,11 @@ async def member_invite(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     params = EventMemberInviteParams(
-        event_id=event_id,
-        chat_id=chat_id,
-        member_id=member_id,
-        user_name=user_name,
-        nick_name=nick_name,
+        event_id,
+        chat_id,
+        member_id,
+        user_name,
+        nick_name,
     )
     message = invite.execute(params)
 
@@ -56,9 +56,9 @@ async def member_leave(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     params = EventMemberLeaveParams(
-        event_id=event_id,
-        chat_id=chat_id,
-        member_id=member_id,
+        event_id,
+        chat_id,
+        member_id,
     )
     message = leave.execute(params)
 

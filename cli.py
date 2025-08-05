@@ -70,11 +70,11 @@ def event_create(chat_id: int, member_id: int, text: str):
     )
     message = creator.execute(
         params=CreateEvenParams(
-            chat_id=chat_id,
-            member_id=member_id,
-            text=text,
-            nick_name='cli',
-            user_name='cli'
+            chat_id,
+            member_id,
+            text,
+            'cli',
+            'cli'
         )
     )
     typer.echo(message)
@@ -111,12 +111,14 @@ def event_update(event_id: int, chat_id: int, member_id: int, text: str):
         repository=EventRepository()
     )
 
-    message = update.execute(EventUpdateParams(
-        event_id=event_id,
-        chat_id=chat_id,
-        member_id=member_id,
-        text=text
-    ))
+    params = EventUpdateParams(
+        event_id,
+        chat_id,
+        member_id,
+        text
+    )
+
+    message = update.execute(params)
 
     typer.echo(message)
 
@@ -128,9 +130,9 @@ def event_remind(event_id: int, chat_id: int, member_id: int):
     )
 
     params = EventRemindParams(
-        event_id=event_id,
-        chat_id=chat_id,
-        member_id=member_id,
+        event_id,
+        chat_id,
+        member_id,
     )
 
     message = remind.execute(params)
@@ -145,11 +147,11 @@ def event_invite(event_id: int, chat_id: int, member_id: int):
     )
 
     params = EventMemberInviteParams(
-        event_id=event_id,
-        chat_id=chat_id,
-        member_id=member_id,
-        nick_name='cli',
-        user_name='cli'
+        event_id,
+        chat_id,
+        member_id,
+        'cli',
+        'cli'
     )
 
     message = invite.execute(params)
@@ -164,9 +166,9 @@ def event_leave(event_id: int, chat_id: int, member_id: int):
     )
 
     params = EventMemberLeaveParams(
-        event_id=event_id,
-        chat_id=chat_id,
-        member_id=member_id,
+        event_id,
+        chat_id,
+        member_id,
     )
 
     message = leave.execute(params)
