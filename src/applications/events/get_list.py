@@ -15,12 +15,12 @@ class GetEventList:
             member_id=member_id
         )
 
-        if event_list.count() == 0:
-            return ["🤡 Ты бездельник!"]
+        result = ["🤡 Ты бездельник!"]
 
-        result = ["🎉 Твои ни никому не нужные события:"]
-        for event in event_list:
-            result.append(f"ID: {event.get_id()} - {event.text}")
+        if event_list.count() != 0:
+            result = ['🎉 Твои ни никому не нужные события:']
+            for event in event_list:
+                result.append(f"ID: {event.get_id()} - {event.text}")
 
         owner_event_ids = [event.id for event in event_list]
 
@@ -33,9 +33,11 @@ class GetEventList:
         if member_events.count() == 0:
             return result
 
-        result.append('\n')
-        result.append('---')
-        result.append('\n')
+        if len(result) > 1:
+            result.append('')
+            result.append('---')
+            result.append('')
+
         result.append('🙌🏻 События где тебя не ждут:')
 
         for event in member_events:
