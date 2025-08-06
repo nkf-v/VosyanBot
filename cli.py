@@ -8,7 +8,7 @@ from src.applications.events.update import EventUpdate, EventUpdateParams
 from src.applications.members.registry import MemberRegistration, MemberRegistrationDto
 from src.applications.events.create import CreateEvenParams, CreateEvent
 from src.applications.events.get_list import GetEventList
-from src.applications.events.delete import EventDelete
+from src.applications.events.delete import EventDelete, EventDeleteParams
 from src.applications.members.unregister import MemberUnregister
 
 from src.infrastructure.db_init import DBInit
@@ -97,11 +97,13 @@ def event_delete(event_id: int, chat_id: int, member_id: int):
         event_member_repository=EventMemberRepository()
     )
 
-    message = delete.execute(
-        event_id=event_id,
-        chat_id=chat_id,
-        member_id=member_id,
+    params = EventDeleteParams(
+        event_id,
+        chat_id,
+        member_id
     )
+
+    message = delete.execute(params)
 
     typer.echo(message)
 
