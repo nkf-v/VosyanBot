@@ -33,6 +33,9 @@ class GetEventList:
         if member_events.count() == 0:
             return result
 
+        if len(result) == 1:
+            result = []
+
         if len(result) > 1:
             result.append('')
             result.append('---')
