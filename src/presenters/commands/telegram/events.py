@@ -19,8 +19,8 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.bot.send_message(chat_id=chat_id, text='Придумай название своему бесполезному событию')
         return
 
-    user_name = update.message.from_user.full_name
-    nick_name = update.message.from_user.username
+    username = update.message.from_user.username
+    full_name = update.message.from_user.full_name
 
 
     event_create_executor = create.CreateEvent(
@@ -32,8 +32,8 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id,
         member_id,
         text,
-        nick_name,
-        user_name,
+        username,
+        full_name,
     )
 
     message = event_create_executor.execute(params)
