@@ -1,5 +1,7 @@
 import peeweedbevolve
 from peewee import *
+from playhouse.pool import PooledMySQLDatabase
+
 from os import getenv, path
 from dotenv import load_dotenv
 
@@ -11,13 +13,15 @@ db_name = getenv('DB_NAME')
 db_host = getenv('DB_HOST')
 
 # Сделать фабрику и SigleTone вынести в отдельный файл
-db = MySQLDatabase(
+db = PooledMySQLDatabase(
     db_name,
     user=user,
     password=password,
     host=db_host,
     charset='utf8mb4',
-    collation='utf8mb4_unicode_ci'
+    collation='utf8mb4_unicode_ci',
+    max_connections=8,
+    stale_timeout=300
 )
 
 class Member(Model):
