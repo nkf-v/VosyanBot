@@ -82,7 +82,8 @@ def event_create(chat_id: int, member_id: int, text: str):
 @app.command()
 def events(chat_id: int, member_id: int):
     getter = GetEventList(
-        repository=EventRepository()
+        repository=EventRepository(),
+        event_member_repository=EventMemberRepository()
     )
     messages = getter.execute(
         chat_id=chat_id,

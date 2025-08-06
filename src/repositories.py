@@ -89,6 +89,9 @@ class EventRepository:
     def delete(self, event: Event):
         event.delete_instance()
 
+    def getListByIds(self, event_ids):
+        return Event.select().where(Event.id.in_(event_ids))
+
 class EventMemberRepository:
     def save(self, event_member: EventMember):
         event_member.save()
@@ -108,3 +111,8 @@ class EventMemberRepository:
 
     def delete(self, member: EventMember):
         member.delete_instance()
+
+    def getListByMemberId(self, member_id: int):
+        return EventMember.select().where(
+            EventMember.member_id == member_id
+        )

@@ -16,9 +16,8 @@ async def member_invite(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.bot.send_message(chat_id=chat_id, text='Событие не найдено')
         return
 
-    user_info = await context.bot.get_chat_member(chat_id, member_id)
-    user_name = user_info.user.full_name
-    nick_name = user_info.user.username
+    user_name = update.message.from_user.full_name
+    nick_name = update.message.from_user.username
 
     invite = EventMemberInvite(
         event_repository=EventRepository(),

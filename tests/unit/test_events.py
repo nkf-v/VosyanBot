@@ -37,19 +37,15 @@ class TestEvents:
         )
 
     def create_context(self, args):
-        get_chat_member_mock = AsyncMock()
-        get_chat_member_mock.return_value = ChatMember(user=self.create_user(), status=ChatMember.MEMBER)
-
         mock_send_message = AsyncMock()
         context = AsyncMock()
         context.args = args
         context.bot.send_message = mock_send_message
-        context.bot.get_chat_member = get_chat_member_mock
 
         return context, mock_send_message
 
     @pytest.mark.asyncio
-    async def test_get_events_command(self):
+    async def test_get_empty_events_command(self):
         # Создаем мок Update
         update = Update(
             update_id=1,
@@ -68,7 +64,7 @@ class TestEvents:
 
         mock.assert_called_once_with(
             chat_id=1,
-            text="Ты бездельник!"
+            text="🤡 Ты бездельник!"
         )
 
     @pytest.mark.asyncio
@@ -92,6 +88,30 @@ class TestEvents:
         mock.assert_called_once_with(
             chat_id=1,
             text=f"Событие сохранено.\nID: 1"
+        )
+
+
+    @pytest.mark.asyncio
+    async def test_get_events_command(self):
+        # Создаем мок Update
+        update = Update(
+            update_id=1,
+            message=Message(
+                message_id=1,
+                date=datetime(2025, 1, 1, 12, 0, 0),
+                text="/events",
+                chat=Chat(id=1, type=constants.ChatType.GROUP),
+                from_user=self.create_user()
+            )
+        )
+
+        context, mock = self.create_context([])
+
+        await events(update, context)
+
+        mock.assert_called_once_with(
+            chat_id=1,
+            text='🎉 Твои ни никому не нужные события:\nID: 1 - Test event'
         )
 
     @pytest.mark.asyncio
