@@ -7,6 +7,7 @@ from src.applications.events.get_list import GetEventList
 from src.applications.events.remind import EventRemind, EventRemindParams
 from src.applications.events.update import EventUpdate, EventUpdateParams
 from src.infrastructure.logger_init import logger
+from src.models import db
 from src.repositories import EventRepository, EventMemberRepository
 
 async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -24,8 +25,8 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
     event_create_executor = create.CreateEvent(
-        event_repository=EventRepository(),
-        event_member_repository=EventMemberRepository()
+        event_repository=EventRepository(db),
+        event_member_repository=EventMemberRepository(db)
     )
 
     params = create.CreateEvenParams(
@@ -48,8 +49,8 @@ async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
     member_id = update.message.from_user.id
 
     getter = GetEventList(
-        repository=EventRepository(),
-        event_member_repository=EventMemberRepository()
+        repository=EventRepository(db),
+        event_member_repository=EventMemberRepository(db)
     )
 
     messages = getter.execute(
@@ -85,7 +86,7 @@ async def event_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     updater = EventUpdate(
-        repository=EventRepository()
+        repository=EventRepository(db)
     )
 
     params = EventUpdateParams(
@@ -113,8 +114,8 @@ async def event_delete(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     deleter = EventDelete(
-        repository=EventRepository(),
-        event_member_repository=EventMemberRepository()
+        repository=EventRepository(db),
+        event_member_repository=EventMemberRepository(db)
     )
 
     params = EventDeleteParams(
@@ -141,8 +142,8 @@ async def event_remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     remind = EventRemind(
-        event_repository=EventRepository(),
-        event_member_repository=EventMemberRepository()
+        event_repository=EventRepository(db),
+        event_member_repository=EventMemberRepository(db)
     )
 
     params = EventRemindParams(

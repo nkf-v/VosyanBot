@@ -1,4 +1,3 @@
-import logging
 import os
 import sys
 import time
@@ -49,11 +48,11 @@ async def reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_nickname = user_info.user.username
 
     registration = MemberRegistration(
-        member_repository=MemberRepository(),
-        stats_repository=StatsRepository(),
-        pidor_stats_repository=PidorStsatsRepository(),
-        current_nice_repository=CurrentNiceRepository(),
-        current_pidor_repository=CurrentPidorRepository()
+        member_repository=MemberRepository(db),
+        stats_repository=StatsRepository(db),
+        pidor_stats_repository=PidorStsatsRepository(db),
+        current_nice_repository=CurrentNiceRepository(db),
+        current_pidor_repository=CurrentPidorRepository(db)
     )
 
     message = registration.execute(
@@ -77,7 +76,7 @@ async def unreg(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     logger.info(f"Unreg {member_id}")
 
-    member_repository = MemberRepository()
+    member_repository = MemberRepository(db)
     unregister = MemberUnregister(
         repository=member_repository
     )

@@ -3,9 +3,10 @@ from telegram.ext import ContextTypes
 
 from src.applications.event_members.invite import EventMemberInvite, EventMemberInviteParams
 from src.applications.event_members.leave import EventMemberLeave, EventMemberLeaveParams
+from src.models import db
 from src.repositories import EventRepository, EventMemberRepository
-
 from src.infrastructure.logger_init import logger
+
 
 async def member_invite(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
@@ -20,8 +21,8 @@ async def member_invite(update: Update, context: ContextTypes.DEFAULT_TYPE):
     full_name = update.message.from_user.full_name
 
     invite = EventMemberInvite(
-        event_repository=EventRepository(),
-        event_member_repository=EventMemberRepository()
+        event_repository=EventRepository(db),
+        event_member_repository=EventMemberRepository(db)
     )
 
     params = EventMemberInviteParams(
@@ -50,8 +51,8 @@ async def member_leave(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     leave = EventMemberLeave(
-        event_repository=EventRepository(),
-        event_member_repository=EventMemberRepository()
+        event_repository=EventRepository(db),
+        event_member_repository=EventMemberRepository(db)
     )
 
     params = EventMemberLeaveParams(

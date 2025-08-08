@@ -32,11 +32,11 @@ def hello(name: str = "World"):
 @app.command()
 def reg(chat_id: int, member_id: int):
     registration = MemberRegistration(
-        member_repository=MemberRepository(),
-        stats_repository=StatsRepository(),
-        pidor_stats_repository=PidorStsatsRepository(),
-        current_nice_repository=CurrentNiceRepository(),
-        current_pidor_repository=CurrentPidorRepository()
+        member_repository=MemberRepository(db),
+        stats_repository=StatsRepository(db),
+        pidor_stats_repository=PidorStsatsRepository(db),
+        current_nice_repository=CurrentNiceRepository(db),
+        current_pidor_repository=CurrentPidorRepository(db)
     )
 
     message = registration.execute(
@@ -52,7 +52,7 @@ def reg(chat_id: int, member_id: int):
 @app.command()
 def unreg(chat_id: int, member_id: int):
     unreg = MemberUnregister(
-        repository=MemberRepository()
+        repository=MemberRepository(db)
     )
     message = unreg.execute(chat_id, member_id)
     typer.echo(message)
@@ -65,8 +65,8 @@ def db_init():
 @app.command()
 def event_create(chat_id: int, member_id: int, text: str):
     creator = CreateEvent(
-        event_repository=EventRepository(),
-        event_member_repository=EventMemberRepository()
+        event_repository=EventRepository(db),
+        event_member_repository=EventMemberRepository(db)
     )
     message = creator.execute(
         params=CreateEvenParams(
@@ -82,8 +82,8 @@ def event_create(chat_id: int, member_id: int, text: str):
 @app.command()
 def events(chat_id: int, member_id: int):
     getter = GetEventList(
-        repository=EventRepository(),
-        event_member_repository=EventMemberRepository()
+        repository=EventRepository(db),
+        event_member_repository=EventMemberRepository(db)
     )
     messages = getter.execute(
         chat_id=chat_id,
@@ -94,8 +94,8 @@ def events(chat_id: int, member_id: int):
 @app.command()
 def event_delete(event_id: int, chat_id: int, member_id: int):
     delete = EventDelete(
-        repository=EventRepository(),
-        event_member_repository=EventMemberRepository()
+        repository=EventRepository(db),
+        event_member_repository=EventMemberRepository(db)
     )
 
     params = EventDeleteParams(
@@ -111,7 +111,7 @@ def event_delete(event_id: int, chat_id: int, member_id: int):
 @app.command()
 def event_update(event_id: int, chat_id: int, member_id: int, text: str):
     update = EventUpdate(
-        repository=EventRepository()
+        repository=EventRepository(db)
     )
 
     params = EventUpdateParams(
@@ -128,8 +128,8 @@ def event_update(event_id: int, chat_id: int, member_id: int, text: str):
 @app.command()
 def event_remind(event_id: int, chat_id: int, member_id: int):
     remind = EventRemind(
-        event_repository=EventRepository(),
-        event_member_repository=EventMemberRepository()
+        event_repository=EventRepository(db),
+        event_member_repository=EventMemberRepository(db)
     )
 
     params = EventRemindParams(
@@ -145,8 +145,8 @@ def event_remind(event_id: int, chat_id: int, member_id: int):
 @app.command()
 def event_invite(event_id: int, chat_id: int, member_id: int):
     invite = EventMemberInvite(
-        event_repository=EventRepository(),
-        event_member_repository=EventMemberRepository()
+        event_repository=EventRepository(db),
+        event_member_repository=EventMemberRepository(db)
     )
 
     params = EventMemberInviteParams(
@@ -164,8 +164,8 @@ def event_invite(event_id: int, chat_id: int, member_id: int):
 @app.command()
 def event_leave(event_id: int, chat_id: int, member_id: int):
     leave = EventMemberLeave(
-        event_repository=EventRepository(),
-        event_member_repository=EventMemberRepository()
+        event_repository=EventRepository(db),
+        event_member_repository=EventMemberRepository(db)
     )
 
     params = EventMemberLeaveParams(
