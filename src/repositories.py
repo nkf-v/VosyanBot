@@ -1,10 +1,11 @@
 from src.models import Member, Stats, PidorStats, CurrentNice, CurrentPidor, Event, EventMember
-from peewee import DoesNotExist
+from peewee import DoesNotExist, Database
 
 
 class MemberRepository:
-    def __init__(self, db):
-        db.connect(reuse_if_open=True)
+    def __init__(self, db: Database):
+        if db.is_closed():
+            db.connect(reuse_if_open=True)
 
     def save(self, member: Member):
         member.save()
@@ -22,8 +23,9 @@ class MemberRepository:
 
 
 class StatsRepository:
-    def __init__(self, db):
-        db.connect(reuse_if_open=True)
+    def __init__(self, db: Database):
+        if db.is_closed():
+            db.connect(reuse_if_open=True)
 
     def save(self, stats: Stats):
         stats.save()
@@ -38,8 +40,9 @@ class StatsRepository:
 
 
 class PidorStsatsRepository:
-    def __init__(self, db):
-        db.connect(reuse_if_open=True)
+    def __init__(self, db: Database):
+        if db.is_closed():
+            db.connect(reuse_if_open=True)
 
     def save(self, stats: PidorStats):
         stats.save()
@@ -54,8 +57,9 @@ class PidorStsatsRepository:
 
 
 class CurrentNiceRepository:
-    def __init__(self, db):
-        db.connect(reuse_if_open=True)
+    def __init__(self, db: Database):
+        if db.is_closed():
+            db.connect(reuse_if_open=True)
 
     def save(self, current: CurrentNice):
         current.save()
@@ -70,8 +74,9 @@ class CurrentNiceRepository:
 
 
 class CurrentPidorRepository:
-    def __init__(self, db):
-        db.connect(reuse_if_open=True)
+    def __init__(self, db: Database):
+        if db.is_closed():
+            db.connect(reuse_if_open=True)
 
     def save(self, current: CurrentPidor):
         current.save()
@@ -85,8 +90,9 @@ class CurrentPidorRepository:
             return None
 
 class EventRepository:
-    def __init__(self, db):
-        db.connect(reuse_if_open=True)
+    def __init__(self, db: Database):
+        if db.is_closed():
+            db.connect(reuse_if_open=True)
 
     def save(self, event: Event):
         event.save()
@@ -111,8 +117,9 @@ class EventRepository:
         return Event.select().where(Event.id.in_(event_ids))
 
 class EventMemberRepository:
-    def __init__(self, db):
-        db.connect(reuse_if_open=True)
+    def __init__(self, db: Database):
+        if db.is_closed():
+            db.connect(reuse_if_open=True)
 
     def save(self, event_member: EventMember):
         event_member.save()
