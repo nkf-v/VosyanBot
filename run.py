@@ -1,10 +1,15 @@
 import os
 import sys
 import time
+import html
+import json
+import traceback
 
 import telegram.error
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler, MessageHandler, filters
+from telegram.constants import ParseMode
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler, MessageHandler, \
+    filters
 
 import src.messages as messages
 
@@ -363,10 +368,36 @@ async def switch_on_carmic_dices_in_chat(update: Update, context: ContextTypes.D
     await update.message.reply_text("Включить кармические кубики? Если они включены, у пидоров больше шансов стать "
                                     "красавчиками, а у красавчиков - стать пидорами", reply_markup=reply_markup)
 
+# Обработчик ошибок
+async def error(update: object, context: ContextTypes.DEFAULT_TYPE):
+    logger.error("Exception while handling an update:", exc_info=context.error)
+
+    tb_list = traceback.format_exception(None, context.error, context.error.__traceback__)
+    tb_string = "".join(tb_list)
+
+    update_str = update.to_dict() if isinstance(update, Update) else str(update)
+    message = (
+        "An exception was raised while handling an update\n"
+        f"<pre>update = {html.escape(json.dumps(update_str, indent=2, ensure_ascii=False))}"
+        "</pre>\n\n"
+        f"<pre>context.chat_data = {html.escape(str(context.chat_data))}</pre>\n\n"
+        f"<pre>context.user_data = {html.escape(str(context.user_data))}</pre>\n\n"
+        f"<pre>{html.escape(tb_string)}</pre>"
+    )
+
+    # Finally, send the message
+    await context.bot.send_message(
+        chat_id=os.getenv('DEVELOPERT_CHAT_ID'), text=message, parse_mode=ParseMode.HTML
+    )
+
 if __name__ == '__main__':
     application = (
         ApplicationBuilder()
         .token(os.getenv('BOT_TOKEN'))
+        .read_timeout(5)
+        .write_timeout(5)
+        .connect_timeout(2)
+        .pool_timeout(5)
         .build()
     )
 
@@ -413,6 +444,6 @@ if __name__ == '__main__':
 
     application.add_handler(MessageHandler(filters.StatusUpdate.LEFT_CHAT_MEMBER, member_left))
 
-    db.connect(reuse_if_open=True)
+    application.add_error_handler(error)
 
     application.run_polling()
