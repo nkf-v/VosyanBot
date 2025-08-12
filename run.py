@@ -404,7 +404,7 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 `/eventleave ID` \- Если вдруг отказываетесь от участия в событии
 Пример: `/eventleave 15`
-"""
+    """
 
     await update.message.reply_text(
         text=text,
