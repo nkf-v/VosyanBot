@@ -419,7 +419,7 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     Пример: `/eventleave 15`
     """
 
-    await context.bot.reply_text(
+    await update.message.reply_text(
         text=text,
         parse_mode="MarkdownV2"
     )
