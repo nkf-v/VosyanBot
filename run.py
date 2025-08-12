@@ -368,6 +368,63 @@ async def switch_on_carmic_dices_in_chat(update: Update, context: ContextTypes.D
     await update.message.reply_text("Включить кармические кубики? Если они включены, у пидоров больше шансов стать "
                                     "красавчиками, а у красавчиков - стать пидорами", reply_markup=reply_markup)
 
+async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = """
+    # Пидорские команды
+
+    `/reg` - Принять участие в ИГРЕ
+
+    `/pidor` - Активировать поиск пидора
+
+    `/run` - Активировать поиск КРАУСАВЧИКА
+
+    `/unreg` - Выйти нахуй из игры
+
+    `/stats` - Стата
+
+    `/pidorstats` - Пидорская стата
+
+    `/resetstats` - Нахуй стату
+
+    `/percentstats` - Процентная стата
+
+    `/nicecoefficients` - Коэффициенты стать КРАУСАВЧИКОМ
+
+    `/pidorcoefficients` - Коэффициенты стать пидором
+
+    `/carmicdices` - Вкл\выкл карамельных кубов
+
+    ---
+
+    # Команды для работы с событиями
+
+    `/events` - Список событий созданный участником в рамках чата
+
+    `/eventcreate Название` - Создать событие с названием. В ответ придет ID названия в рамках которого можно совершать операции. Автоматически делает создателя участником.
+    Пример: `/eventcreate Заказчик охуел. Послать нахуй в 23 августа в 18:00`
+
+    `/eventupdate ID Название` - Изменение текста в сообщении.
+    Пример: `/eventupdate 5 Илюха охуел просто послать его нахуй`
+
+    `/eventdelete ID` - Удаляет навсегда событие. После удаления востановлению не понадлежит. Также удаляет всех участников
+    Пример: `/eventdelete 2`
+
+    `/eventremind ID` - Напомнить об событии другим участникам
+    Пример: `/eventremind 10`
+
+    `/eventinvite ID` - Тот кто хочет участвовать в событии вводит эту команду. При напоминании участник будет тегироваться
+    Пример: `/eventinvite 14`
+
+    `/eventleave ID` - Если вдруг отказываетесь от участия в событии
+    Пример: `/eventleave 15`
+    """
+
+    await context.bot.reply_text(
+        text=text,
+        parse_mode="MarkdownV2"
+    )
+    pass
+
 # Обработчик ошибок
 async def error(update: object, context: ContextTypes.DEFAULT_TYPE):
     logger.error("Exception while handling an update:", exc_info=context.error)
@@ -437,6 +494,9 @@ if __name__ == '__main__':
         #events members
         CommandHandler('eventinvite', event_members.member_invite),
         CommandHandler('eventleave', event_members.member_leave),
+
+        # help
+        CommandHandler('help', help),
 
         # query
         CallbackQueryHandler(confirm_dialogs)
