@@ -370,7 +370,7 @@ async def switch_on_carmic_dices_in_chat(update: Update, context: ContextTypes.D
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = """
-    # Пидорские команды
+    **Пидорские команды**
 
     `/reg` - Принять участие в ИГРЕ
 
@@ -396,7 +396,7 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     ---
 
-    # Команды для работы с событиями
+    **Команды для работы с событиями**
 
     `/events` - Список событий созданный участником в рамках чата
 
