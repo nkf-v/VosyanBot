@@ -1,5 +1,7 @@
 from dataclasses import dataclass
+from typing import List
 
+from src.models import EventMember, Event
 from src.repositories import EventRepository, EventMemberRepository
 
 @dataclass
@@ -7,6 +9,28 @@ class EventRemindParams:
     event_id: int
     chat_id: int
     member_id: int
+
+@dataclass
+class EventRemindResult:
+    event: Event = None
+    members: List[EventMember] = None
+    error: str = None
+
+    def __str__(self):
+        if self.error is not None:
+            return self.error
+
+        messages = [
+            'Событие:',
+            f"- ID {self.event.get_id()} - {self.event.text}",
+            '',
+            'Участники:'
+        ]
+
+        for member in self.members:
+            messages.append(f"- {member.user_name} (@{member.nick_name})")
+
+        return '\n'.join(messages)
 
 class EventRemind:
     event_repository: EventRepository
@@ -16,11 +40,12 @@ class EventRemind:
         self.event_repository = event_repository
         self.event_member_repository = event_member_repository
 
-    def execute(self, params: EventRemindParams):
+    def execute(self, params: EventRemindParams, result: EventRemindResult):
         event = self.event_repository.getById(params.event_id)
 
         if event is None or event.chat_id != params.chat_id:
-            return 'Событие не найдено'
+            result.error = 'Событие не найдено'
+            return result
 
         event_members = self.event_member_repository.getListByEventId(params.event_id)
         is_event_member = False
@@ -30,16 +55,10 @@ class EventRemind:
                 is_event_member = True
 
         if not is_event_member:
-            return 'Ты не участвуешь в событие. Пшол вон'
+            result.error = 'Ты не участвуешь в событие. Пшол вон'
+            return result
 
-        messages = [
-            'Событие:',
-            f"- ID {params.event_id} - {event.text}",
-            '',
-            'Участники:'
-        ]
+        result.event = event
+        result.members = event_members
 
-        for member in event_members:
-            messages.append(f"- {member.user_name} (@{member.nick_name})")
-
-        return '\n'.join(messages)
+        return result

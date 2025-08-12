@@ -69,25 +69,33 @@ class TestEvents:
 
     @pytest.mark.asyncio
     async def test_create_command(self):
-        # Создаем мок Update
+        mock_reply_text = AsyncMock()
+
+        mock_message = AsyncMock()
+        mock_message.message_id = 1
+        mock_message.date = datetime(2025, 1, 1, 12, 0, 0)
+        mock_message.text = "/events"
+        mock_message.chat = Chat(id=1, type=constants.ChatType.GROUP)
+        mock_message.from_user = self.create_user()
+        mock_message.reply_text = mock_reply_text
+
         update = Update(
             update_id=1,
-            message=Message(
-                message_id=1,
-                date=datetime(2025, 1, 1, 12, 0, 0),
-                text="/eventcreate Test event",
-                chat=Chat(id=1, type=constants.ChatType.GROUP),
-                from_user=self.create_user()
-            )
+            message=mock_message,
         )
 
         context, mock = self.create_context(['Test event'])
 
         await event_create(update, context)
 
-        mock.assert_called_once_with(
-            chat_id=1,
-            text=f"Событие сохранено.\nID: 1"
+        mock_reply_text.assert_called_once_with(
+            text='\n'.join([
+                'Событие:',
+                "- ID 1 - Test event",
+                '',
+                'Участники:',
+                '- First Last (@name)',
+            ])
         )
 
 

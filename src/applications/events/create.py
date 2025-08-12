@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from src.applications.events.remind import EventRemindResult
 from src.repositories import EventRepository, EventMemberRepository
 from src.models import Event, EventMember, db
 
@@ -23,7 +24,7 @@ class CreateEvent:
         self.event_repository = event_repository
         self.event_member_repository = event_member_repository
 
-    def execute(self, params: CreateEvenParams):
+    def execute(self, params: CreateEvenParams, result: EventRemindResult):
         event = Event(
             chat_id=params.chat_id,
             member_id=params.member_id,
@@ -33,13 +34,16 @@ class CreateEvent:
         try:
             with db.atomic():
                 self.event_repository.save(event)
-                self.event_member_repository.save(EventMember(
+                result.event = event
+                event_member = EventMember(
                     event_id=event.get_id(),
                     member_id=event.member_id,
                     nick_name=params.nick_name,
                     user_name=params.user_name
-                ))
+                )
+                self.event_member_repository.save(event_member)
+                result.members = [event_member]
         except:
-            return 'Что-то пошло не так. Попробуйте позже.'
+            result.error = 'Что-то пошло не так. Попробуйте позже.'
 
-        return f"Событие сохранено.\nID: {event.get_id()}"
+        return result

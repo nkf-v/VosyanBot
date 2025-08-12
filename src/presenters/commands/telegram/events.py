@@ -1,10 +1,11 @@
+from pymysql.converters import through
 from telegram import Update
 from telegram.ext import ContextTypes
 
 from src.applications.events import create
 from src.applications.events.delete import EventDelete, EventDeleteParams
 from src.applications.events.get_list import GetEventList
-from src.applications.events.remind import EventRemind, EventRemindParams
+from src.applications.events.remind import EventRemind, EventRemindParams, EventRemindResult
 from src.applications.events.update import EventUpdate, EventUpdateParams
 from src.infrastructure.logger_init import logger
 from src.models import db
@@ -37,12 +38,13 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
         full_name,
     )
 
-    message = event_create_executor.execute(params)
+    result = EventRemindResult()
+    result = event_create_executor.execute(params, result)
 
     try:
-        await context.bot.send_message(chat_id=chat_id, text=message)
+        await update.message.reply_text(text=str(result))
     except:
-        logger.error(f"Failed send message {message}")
+        logger.error(f"Failed send message", extra=result)
 
 async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
@@ -152,9 +154,10 @@ async def event_remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
         member_id,
     )
 
-    message = remind.execute(params)
+    result = EventRemindResult()
+    result = remind.execute(params, result)
 
     try:
-        await context.bot.send_message(chat_id=chat_id, text=message)
+        await context.bot.send_message(chat_id=chat_id, text=str(result))
     except:
-        logger.error(f"Failed send message {message}")
+        logger.error(f"Failed send message", extra=result)
