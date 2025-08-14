@@ -41,10 +41,7 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = EventRemindResult()
     result = event_create_executor.execute(params, result)
 
-    try:
-        await update.message.reply_text(text=str(result))
-    except:
-        logger.error(f"Failed send message", extra=result)
+    await update.message.reply_text(text=str(result))
 
 async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
@@ -62,10 +59,7 @@ async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     message = '\n'.join(messages)
 
-    try:
-        await context.bot.send_message(chat_id=chat_id, text=message)
-    except:
-        logger.error(f"Failed send message {message}")
+    await context.bot.send_message(chat_id=chat_id, text=message)
 
 
 async def event_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -100,10 +94,7 @@ async def event_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     message = updater.execute(params)
 
-    try:
-        await context.bot.send_message(chat_id=chat_id, text=message)
-    except:
-        logger.error(f"Failed send message {message}")
+    await context.bot.send_message(chat_id=chat_id, text=message)
 
 
 async def event_delete(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -128,10 +119,7 @@ async def event_delete(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     message = deleter.execute(params)
 
-    try:
-        await context.bot.send_message(chat_id=chat_id, text=message)
-    except:
-        logger.error(f"Failed send message {message}")
+    await context.bot.send_message(chat_id=chat_id, text=message)
 
 
 async def event_remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -157,7 +145,4 @@ async def event_remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = EventRemindResult()
     result = remind.execute(params, result)
 
-    try:
-        await context.bot.send_message(chat_id=chat_id, text=str(result))
-    except:
-        logger.error(f"Failed send message", extra=result)
+    await context.bot.send_message(chat_id=chat_id, text=str(result))

@@ -20,8 +20,8 @@ db = PooledMySQLDatabase(
     host=db_host,
     charset='utf8mb4',
     collation='utf8mb4_unicode_ci',
-    max_connections=8,
-    stale_timeout=300
+    max_connections=4,
+    stale_timeout=15
 )
 
 class Member(Model):

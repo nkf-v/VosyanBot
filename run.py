@@ -6,7 +6,7 @@ import json
 import traceback
 
 import telegram.error
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot
 from telegram.constants import ParseMode
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler, MessageHandler, \
     filters
@@ -41,7 +41,21 @@ def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
         exc_info=(exc_type, exc_value, exc_traceback),
     )
 
-    db.close()
+    tb_list = traceback.format_exception(exc_type, exc_value, exc_traceback)
+    tb_string = "".join(tb_list)
+
+    message = (
+        "Exception\n"
+        "<b>Trace</b>\n"
+        f"<pre>{html.escape(tb_string)}</pre>"
+    )
+
+    bot = Bot(os.getenv('BOT_TOKEN'))
+    bot.send_message(
+        chat_id=os.getenv('DEVELOPERT_CHAT_ID'),
+        text=message,
+        parse_mode=ParseMode.HTML
+    )
 
 sys.excepthook = handle_uncaught_exception
 
@@ -422,10 +436,13 @@ async def error(update: object, context: ContextTypes.DEFAULT_TYPE):
     update_str = update.to_dict() if isinstance(update, Update) else str(update)
     message = (
         "An exception was raised while handling an update\n"
-        f"<pre>update = {html.escape(json.dumps(update_str, indent=2, ensure_ascii=False))}"
-        "</pre>\n\n"
+        "<b>Update</b>\n"
+        f"<pre>{html.escape(json.dumps(update_str, indent=2, ensure_ascii=False))}</pre>\n\n"
+        "<b>Context Chat</b>\n"
         f"<pre>context.chat_data = {html.escape(str(context.chat_data))}</pre>\n\n"
+        "<b>Context User</b>\n"
         f"<pre>context.user_data = {html.escape(str(context.user_data))}</pre>\n\n"
+        "<b>Trace</b>\n"
         f"<pre>{html.escape(tb_string)}</pre>"
     )
 
@@ -438,10 +455,10 @@ if __name__ == '__main__':
     application = (
         ApplicationBuilder()
         .token(os.getenv('BOT_TOKEN'))
-        .read_timeout(5)
-        .write_timeout(5)
-        .connect_timeout(2)
-        .pool_timeout(5)
+        .read_timeout(10)
+        .write_timeout(10)
+        .connect_timeout(5)
+        .pool_timeout(10)
         .build()
     )
 
