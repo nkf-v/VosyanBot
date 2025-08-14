@@ -25,6 +25,7 @@ class CreateEvent:
         self.event_member_repository = event_member_repository
 
     def execute(self, params: CreateEvenParams, result: EventRemindResult):
+
         event = Event(
             chat_id=params.chat_id,
             member_id=params.member_id,
@@ -34,7 +35,6 @@ class CreateEvent:
         try:
             with db.atomic():
                 self.event_repository.save(event)
-                result.event = event
                 event_member = EventMember(
                     event_id=event.get_id(),
                     member_id=event.member_id,
@@ -42,8 +42,12 @@ class CreateEvent:
                     user_name=params.user_name
                 )
                 self.event_member_repository.save(event_member)
-                result.members = [event_member]
+
         except:
             result.error = 'Что-то пошло не так. Попробуйте позже.'
+
+        result.event = event
+        result.members = [event_member]
+        result.chat_id = params.chat_id
 
         return result

@@ -1,5 +1,8 @@
+import json
 from dataclasses import dataclass
 from typing import List
+
+from telegram import InlineKeyboardButton
 
 from src.models import EventMember, Event
 from src.repositories import EventRepository, EventMemberRepository
@@ -10,15 +13,17 @@ class EventRemindParams:
     chat_id: int
     member_id: int
 
+# TODO реализацию перенести в presenters.commands.telegram
+# TODO тут оставить абстрактный класс с setters
 @dataclass
 class EventRemindResult:
     event: Event = None
     members: List[EventMember] = None
     error: str = None
 
-    def __str__(self):
+    def present(self):
         if self.error is not None:
-            return self.error
+            return self.error, None
 
         messages = [
             'Событие:',
@@ -30,7 +35,20 @@ class EventRemindResult:
         for member in self.members:
             messages.append(f"- {member.user_name} (@{member.nick_name})")
 
-        return '\n'.join(messages)
+        keyboard = [
+            [
+                InlineKeyboardButton("Иду", callback_data=json.dumps({
+                    'action': 'event_invite',
+                    'chat_id': self.chat_id,
+                })),
+                InlineKeyboardButton("на хуй", callback_data=json.dumps({
+                    'action': 'event_leave',
+                    'chat_id': self.chat_id,
+                })),
+            ]
+        ]
+
+        return '\n'.join(messages), keyboard
 
 class EventRemind:
     event_repository: EventRepository
@@ -60,5 +78,6 @@ class EventRemind:
 
         result.event = event
         result.members = event_members
+        result.chat_id = params.chat_id
 
         return result

@@ -1,5 +1,4 @@
-from pymysql.converters import through
-from telegram import Update
+from telegram import Update, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
 from src.applications.events import create
@@ -7,9 +6,9 @@ from src.applications.events.delete import EventDelete, EventDeleteParams
 from src.applications.events.get_list import GetEventList
 from src.applications.events.remind import EventRemind, EventRemindParams, EventRemindResult
 from src.applications.events.update import EventUpdate, EventUpdateParams
-from src.infrastructure.logger_init import logger
 from src.models import db
 from src.repositories import EventRepository, EventMemberRepository
+
 
 async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
@@ -41,7 +40,11 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = EventRemindResult()
     result = event_create_executor.execute(params, result)
 
-    await update.message.reply_text(text=str(result))
+    message, keyboard = result.present()
+
+    reply_markup = InlineKeyboardMarkup(keyboard) if keyboard is not None else None
+
+    await update.message.reply_text(text=message, reply_markup=reply_markup)
 
 async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
@@ -144,5 +147,8 @@ async def event_remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     result = EventRemindResult()
     result = remind.execute(params, result)
+    message, keyboard = result.present()
 
-    await context.bot.send_message(chat_id=chat_id, text=str(result))
+    reply_markup = InlineKeyboardMarkup(keyboard) if keyboard is not None else None
+
+    await context.bot.send_message(chat_id=chat_id, text=message, reply_markup=reply_markup)
