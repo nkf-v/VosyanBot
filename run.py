@@ -12,6 +12,8 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, Callb
     filters
 
 import src.messages as messages
+from src.applications.event_members.invite import EventMemberInvite, EventMemberInviteParams
+from src.applications.event_members.leave import EventMemberLeave, EventMemberLeaveParams
 
 from src.presenters.commands.telegram import events
 from src.presenters.commands.telegram import event_members
@@ -31,7 +33,7 @@ from src.repositories import (
     StatsRepository,
     PidorStsatsRepository,
     CurrentNiceRepository,
-    CurrentPidorRepository
+    CurrentPidorRepository, EventRepository, EventMemberRepository
 )
 from src.models import db
 
@@ -290,7 +292,13 @@ async def reset_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 
 async def confirm_dialogs(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chat_id = update.message.chat_id
+    member_id = update.message.from_user.id
+    username = update.message.from_user.username
+    full_name = update.message.from_user.full_name
+
     query = update.callback_query.data
+
     if query.startswith('resetstats') and (query.split(" ")[1] == 'No'):
         await update.callback_query.edit_message_text(text='Правильный выбор 👍')
     elif query.startswith('resetstats') and (query.split(" ")[1] == 'Yes'):
@@ -305,6 +313,45 @@ async def confirm_dialogs(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         chat_id = query.split(" ")[2]
         add_chat_to_carmic_dices_in_db(chat_id)
         await update.callback_query.edit_message_text(text='Кармические кубики включены')
+    else:
+        data = json.loads(query)
+        action = data['action']
+        event_id = data['event_id']
+        message = None
+
+        if action == 'event_invite':
+            invite = EventMemberInvite(
+                event_repository=EventRepository(db),
+                event_member_repository=EventMemberRepository(db)
+            )
+
+            params = EventMemberInviteParams(
+                event_id,
+                chat_id,
+                member_id,
+                username,
+                full_name,
+            )
+
+            message = invite.execute(params)
+        elif action == 'event_leave':
+            leave = EventMemberLeave(
+                event_repository=EventRepository(db),
+                event_member_repository=EventMemberRepository(db)
+            )
+
+            params = EventMemberLeaveParams(
+                event_id,
+                chat_id,
+                member_id,
+            )
+
+            message = leave.execute(params)
+
+        if message is None:
+            await context.bot.send_message(chat_id=chat_id, text='Что-то пошло не так. Попробуйте позже.')
+        else:
+            await context.bot.send_message(chat_id=chat_id, text=message)
 
 
 async def member_left(update: Update, context: ContextTypes.DEFAULT_TYPE):
