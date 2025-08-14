@@ -5,7 +5,6 @@ from src.applications.event_members.invite import EventMemberInvite, EventMember
 from src.applications.event_members.leave import EventMemberLeave, EventMemberLeaveParams
 from src.models import db
 from src.repositories import EventRepository, EventMemberRepository
-from src.infrastructure.logger_init import logger
 
 
 async def member_invite(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -34,11 +33,7 @@ async def member_invite(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     message = invite.execute(params)
 
-    try:
-        await context.bot.send_message(chat_id=chat_id, text=message)
-    except:
-        logger.error(f"Failed send message {message}")
-
+    await context.bot.send_message(chat_id=chat_id, text=message)
 
 
 async def member_leave(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -62,7 +57,4 @@ async def member_leave(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     message = leave.execute(params)
 
-    try:
-        await context.bot.send_message(chat_id=chat_id, text=message)
-    except:
-        logger.error(f"Failed send message {message}")
+    await context.bot.send_message(chat_id=chat_id, text=message)
