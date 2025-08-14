@@ -38,7 +38,7 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     result = EventRemindResult()
-    result = event_create_executor.execute(params, result)
+    event_create_executor.execute(params, result)
 
     message, keyboard = result.present()
 
@@ -146,7 +146,7 @@ async def event_remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     result = EventRemindResult()
-    result = remind.execute(params, result)
+    remind.execute(params, result)
     message, keyboard = result.present()
 
     reply_markup = InlineKeyboardMarkup(keyboard) if keyboard is not None else None

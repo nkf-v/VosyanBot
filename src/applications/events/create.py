@@ -49,4 +49,4 @@ class CreateEvent:
         result.event = event
         result.members = [event_member]
 
-        return result
+        pass
