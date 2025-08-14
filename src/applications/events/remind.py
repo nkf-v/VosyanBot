@@ -45,9 +45,25 @@ class EventRemindResult:
                     })
                 ),
                 InlineKeyboardButton(
-                    text="на хуй",
+                    text="нахрен",
                     callback_data=json.dumps({
                         'action': 'event_leave',
+                        'event_id': self.event.get_id(),
+                    })
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="Напомнить",
+                    callback_data=json.dumps({
+                        'action': 'event_remind',
+                        'event_id': self.event.get_id(),
+                    })
+                ),
+                InlineKeyboardButton(
+                    text="Удоли",
+                    callback_data=json.dumps({
+                        'action': 'event_delete',
                         'event_id': self.event.get_id(),
                     })
                 ),
@@ -69,7 +85,7 @@ class EventRemind:
 
         if event is None or event.chat_id != params.chat_id:
             result.error = 'Событие не найдено'
-            return result
+            pass
 
         event_members = self.event_member_repository.getListByEventId(params.event_id)
         is_event_member = False
@@ -80,9 +96,9 @@ class EventRemind:
 
         if not is_event_member:
             result.error = 'Ты не участвуешь в событие. Пшол вон'
-            return result
+            pass
 
         result.event = event
         result.members = event_members
 
-        return result
+        pass

@@ -14,6 +14,8 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, Callb
 import src.messages as messages
 from src.applications.event_members.invite import EventMemberInvite, EventMemberInviteParams
 from src.applications.event_members.leave import EventMemberLeave, EventMemberLeaveParams
+from src.applications.events.delete import EventDelete, EventDeleteParams
+from src.applications.events.remind import EventRemind, EventRemindParams, EventRemindResult
 
 from src.presenters.commands.telegram import events
 from src.presenters.commands.telegram import event_members
@@ -318,40 +320,76 @@ async def confirm_dialogs(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         action = data['action']
         event_id = data['event_id']
         message = None
+        keyboard = None
 
-        if action == 'event_invite':
-            invite = EventMemberInvite(
-                event_repository=EventRepository(db),
-                event_member_repository=EventMemberRepository(db)
-            )
+        match action:
+            case 'event_delete':
+                delete = EventDelete(
+                    repository=EventRepository(db),
+                    event_member_repository=EventMemberRepository(db)
+                )
 
-            params = EventMemberInviteParams(
-                event_id,
-                chat_id,
-                member_id,
-                username,
-                full_name,
-            )
+                params = EventDeleteParams(
+                    event_id,
+                    chat_id,
+                    member_id,
+                )
 
-            message = invite.execute(params)
-        elif action == 'event_leave':
-            leave = EventMemberLeave(
-                event_repository=EventRepository(db),
-                event_member_repository=EventMemberRepository(db)
-            )
+                message = delete.execute(params)
 
-            params = EventMemberLeaveParams(
-                event_id,
-                chat_id,
-                member_id,
-            )
+            case 'event_remind':
+                remind = EventRemind(
+                    event_repository=EventRepository(db),
+                    event_member_repository=EventMemberRepository(db)
+                )
 
-            message = leave.execute(params)
+                params = EventRemindParams(
+                    event_id,
+                    chat_id,
+                    member_id,
+                )
 
-        if message is None:
-            await context.bot.send_message(chat_id=chat_id, text='Что-то пошло не так. Попробуйте позже.')
-        else:
-            await context.bot.send_message(chat_id=chat_id, text=message)
+                result = EventRemindResult()
+
+                remind.execute(params, result)
+
+                message, keyboard = result.present()
+
+            case 'event_invite':
+                invite = EventMemberInvite(
+                    event_repository=EventRepository(db),
+                    event_member_repository=EventMemberRepository(db)
+                )
+
+                params = EventMemberInviteParams(
+                    event_id,
+                    chat_id,
+                    member_id,
+                    username,
+                    full_name,
+                )
+
+                message = invite.execute(params)
+
+            case 'event_leave':
+                leave = EventMemberLeave(
+                    event_repository=EventRepository(db),
+                    event_member_repository=EventMemberRepository(db)
+                )
+
+                params = EventMemberLeaveParams(
+                    event_id,
+                    chat_id,
+                    member_id,
+                )
+
+                message = leave.execute(params)
+            case _:
+                message = 'Что-то пошло не так. Попробуйте позже.'
+
+        reply_markup = InlineKeyboardMarkup(keyboard) if keyboard is not None else None
+
+        await context.bot.send_message(chat_id=chat_id, text=message, reply_markup=reply_markup)
 
 
 async def member_left(update: Update, context: ContextTypes.DEFAULT_TYPE):
