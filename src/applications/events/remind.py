@@ -37,14 +37,20 @@ class EventRemindResult:
 
         keyboard = [
             [
-                InlineKeyboardButton("Иду", callback_data=json.dumps({
-                    'action': 'event_invite',
-                    'chat_id': self.chat_id,
-                })),
-                InlineKeyboardButton("на хуй", callback_data=json.dumps({
-                    'action': 'event_leave',
-                    'chat_id': self.chat_id,
-                })),
+                InlineKeyboardButton(
+                    text="Иду",
+                    callback_data=json.dumps({
+                        'action': 'event_invite',
+                        'event_id': self.event.get_id(),
+                    })
+                ),
+                InlineKeyboardButton(
+                    text="на хуй",
+                    callback_data=json.dumps({
+                        'action': 'event_leave',
+                        'event_id': self.event.get_id(),
+                    })
+                ),
             ]
         ]
 
@@ -78,6 +84,5 @@ class EventRemind:
 
         result.event = event
         result.members = event_members
-        result.chat_id = params.chat_id
 
         return result

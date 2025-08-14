@@ -48,6 +48,5 @@ class CreateEvent:
 
         result.event = event
         result.members = [event_member]
-        result.chat_id = params.chat_id
 
         return result
