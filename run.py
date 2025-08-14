@@ -292,10 +292,10 @@ async def reset_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 
 async def confirm_dialogs(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    chat_id = update.message.chat_id
-    member_id = update.message.from_user.id
-    username = update.message.from_user.username
-    full_name = update.message.from_user.full_name
+    chat_id = update.callback_query.message.chat_id
+    member_id = update.callback_query.from_user.id
+    username = update.callback_query.from_user.username
+    full_name = update.callback_query.from_user.full_name
 
     query = update.callback_query.data
 
