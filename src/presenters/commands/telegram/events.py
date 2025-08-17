@@ -3,7 +3,7 @@ from telegram.ext import ContextTypes
 
 from src.applications.events import create
 from src.applications.events.delete import EventDelete, EventDeleteParams
-from src.applications.events.get_list import GetEventList
+from src.applications.events.get_list import GetEventList, EventListPresenter
 from src.applications.events.remind import EventRemind, EventRemindParams, EventRemindResult
 from src.applications.events.update import EventUpdate, EventUpdateParams
 from src.models import db
@@ -55,12 +55,15 @@ async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
         event_member_repository=EventMemberRepository(db)
     )
 
-    messages = getter.execute(
+    presenter = EventListPresenter()
+
+    getter.execute(
         chat_id=chat_id,
         member_id=member_id,
+        presenter=presenter,
     )
 
-    message = '\n'.join(messages)
+    message = presenter.present()
 
     await context.bot.send_message(chat_id=chat_id, text=message)
 

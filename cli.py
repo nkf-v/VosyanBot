@@ -7,7 +7,7 @@ from src.applications.events.remind import EventRemindParams, EventRemind
 from src.applications.events.update import EventUpdate, EventUpdateParams
 from src.applications.members.registry import MemberRegistration, MemberRegistrationDto
 from src.applications.events.create import CreateEvenParams, CreateEvent
-from src.applications.events.get_list import GetEventList
+from src.applications.events.get_list import GetEventList, EventListPresenter
 from src.applications.events.delete import EventDelete, EventDeleteParams
 from src.applications.members.unregister import MemberUnregister
 
@@ -85,11 +85,16 @@ def events(chat_id: int, member_id: int):
         repository=EventRepository(db),
         event_member_repository=EventMemberRepository(db)
     )
-    messages = getter.execute(
+
+    presenter = EventListPresenter()
+
+    getter.execute(
         chat_id=chat_id,
         member_id=member_id,
+        presenter=presenter,
     )
-    typer.echo('\n'.join(messages))
+
+    typer.echo(presenter.present())
 
 @app.command()
 def event_delete(event_id: int, chat_id: int, member_id: int):
