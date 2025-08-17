@@ -116,6 +116,10 @@ class EventRepository:
     def getListByIds(self, event_ids):
         return Event.select().where(Event.id.in_(event_ids))
 
+    def get_list_by_chat(self, chat_id: int):
+        return Event.select().where(Event.chat_id == chat_id)
+
+
 class EventMemberRepository:
     def __init__(self, db: Database):
         if db.is_closed():
