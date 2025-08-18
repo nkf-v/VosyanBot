@@ -85,7 +85,7 @@ class GetEventList:
             if event.member_id != member_id and event.get_id() not in invite_event_ids:
                 chat_event_ids.append(event.get_id())
 
-        chat_events = self.repository.getListByIds(invite_event_ids)
+        chat_events = self.repository.getListByIds(chat_event_ids)
 
         presenter.member_events = member_events
         presenter.invite_events = invite_events
