@@ -33,24 +33,23 @@ class EventMemberLeave:
 
         if event is None or event.chat_id != params.chat_id:
             presenter.error = 'Событие не найдено'
-            pass
+            return
 
         if event.member_id == params.member_id:
             presenter.error = 'Куда собрался! Ты автор события. Удаляй событие целиком раз ливаешь'
-            pass
+            return
 
         member = self.event_member_repository.getOneByEventAndMemberId(params.event_id, params.member_id)
 
         if member is None:
             presenter.error = 'Зачем ливать когда тебя не приглашали?'
-            pass
+            return
 
         try:
             self.event_member_repository.delete(member)
         except:
             presenter.error = 'Что-то пошло не так'
-            pass
+            return
 
         presenter.event = event
         presenter.member = member
-        pass

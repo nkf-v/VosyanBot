@@ -36,12 +36,12 @@ class EventMemberInvite:
 
         if event is None or event.chat_id != params.chat_id:
             presenter.error = 'Событие не найдено'
-            pass
+            return
 
         member = self.event_member_repository.getOneByEventAndMemberId(params.event_id, params.member_id)
         if member is not None:
             presenter.error = f"{params.user_name}, ты уже в событии {event.text}, дурачек"
-            pass
+            return
 
         member = EventMember(
             event_id=params.event_id,
@@ -54,8 +54,7 @@ class EventMemberInvite:
             self.event_member_repository.save(member)
         except:
             presenter.error = 'Что-то пошло не так'
-            pass
+            return
 
         presenter.event = event
         presenter.member = member
-        pass
