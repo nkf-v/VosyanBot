@@ -1,8 +1,8 @@
+import html
+import json
 import os
 import sys
 import time
-import html
-import json
 import traceback
 
 import telegram.error
@@ -12,32 +12,26 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, Callb
     filters
 
 import src.messages as messages
-from src.applications.event_members.invite import EventMemberInvite, EventMemberInviteParams
-from src.applications.event_members.leave import EventMemberLeave, EventMemberLeaveParams
-from src.applications.events.delete import EventDelete, EventDeleteParams
-from src.applications.events.remind import EventRemind, EventRemindParams, EventRemindResult
-
-from src.presenters.commands.telegram import events
-from src.presenters.commands.telegram import event_members
-
 import src.stickers as stickers
 from src.applications.members.registry import MemberRegistration, MemberRegistrationDto
 from src.applications.members.unregister import MemberUnregister
 from src.db_functions import (unreg_in_data, is_not_time_expired, are_carmic_dices_enabled, update_pidor_stats,
                               get_current_user, get_user_percentage_nice_pidor, get_pidor_stats, get_all_members,
                               get_random_id, get_random_id_carmic, get_full_name_from_db, get_nickname_from_db,
-                              add_chat_to_carmic_dices_in_db, remove_chat_from_carmic_dices_in_db,
-                              reset_stats_data, set_full_name_and_nickname_in_db, update_current,
+                              set_full_name_and_nickname_in_db, update_current,
                               get_chat_members_nice_coefficients, get_chat_members_pidor_coefficients)
 from src.infrastructure.logger_init import logger
+from src.models import db
+from src.presenters.commands.telegram import events
+from src.presenters.commands.telegram.keyboard_handler import keyboard_handle
 from src.repositories import (
     MemberRepository,
     StatsRepository,
     PidorStsatsRepository,
     CurrentNiceRepository,
-    CurrentPidorRepository, EventRepository, EventMemberRepository
+    CurrentPidorRepository
 )
-from src.models import db
+
 
 def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
     logger.error(
@@ -45,6 +39,7 @@ def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
         exc_info=(exc_type, exc_value, exc_traceback),
     )
 
+    # TODO отправку сообщения переделать в handler логирования
     tb_list = traceback.format_exception(exc_type, exc_value, exc_traceback)
     tb_string = "".join(tb_list)
 
@@ -293,105 +288,6 @@ async def reset_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
                                     "все забудут, кто был красавчиком", reply_markup=reply_markup)
 
 
-async def confirm_dialogs(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    chat_id = update.callback_query.message.chat_id
-    member_id = update.callback_query.from_user.id
-    username = update.callback_query.from_user.username
-    full_name = update.callback_query.from_user.full_name
-
-    query = update.callback_query.data
-
-    if query.startswith('resetstats') and (query.split(" ")[1] == 'No'):
-        await update.callback_query.edit_message_text(text='Правильный выбор 👍')
-    elif query.startswith('resetstats') and (query.split(" ")[1] == 'Yes'):
-        chat_id = int(query.split(" ")[2])
-        reset_stats_data(chat_id)
-        await update.callback_query.edit_message_text(text='Статистика очищена, начинаем с чистого листа🙈')
-    elif query.startswith('carma') and (query.split(" ")[1] == 'No'):
-        chat_id = query.split(" ")[2]
-        remove_chat_from_carmic_dices_in_db(chat_id)
-        await update.callback_query.edit_message_text(text='Кармические кубики отключены')
-    elif query.startswith('carma') and (query.split(" ")[1] == 'Yes'):
-        chat_id = query.split(" ")[2]
-        add_chat_to_carmic_dices_in_db(chat_id)
-        await update.callback_query.edit_message_text(text='Кармические кубики включены')
-    else:
-        data = json.loads(query)
-        action = data['action']
-        event_id = data['event_id']
-        message = None
-        keyboard = None
-
-        match action:
-            case 'event_delete':
-                delete = EventDelete(
-                    repository=EventRepository(db),
-                    event_member_repository=EventMemberRepository(db)
-                )
-
-                params = EventDeleteParams(
-                    event_id,
-                    chat_id,
-                    member_id,
-                )
-
-                message = delete.execute(params)
-
-            case 'event_remind':
-                remind = EventRemind(
-                    event_repository=EventRepository(db),
-                    event_member_repository=EventMemberRepository(db)
-                )
-
-                params = EventRemindParams(
-                    event_id,
-                    chat_id,
-                    member_id,
-                )
-
-                result = EventRemindResult()
-
-                remind.execute(params, result)
-
-                message, keyboard = result.present()
-
-            case 'event_invite':
-                invite = EventMemberInvite(
-                    event_repository=EventRepository(db),
-                    event_member_repository=EventMemberRepository(db)
-                )
-
-                params = EventMemberInviteParams(
-                    event_id,
-                    chat_id,
-                    member_id,
-                    username,
-                    full_name,
-                )
-
-                message = invite.execute(params)
-
-            case 'event_leave':
-                leave = EventMemberLeave(
-                    event_repository=EventRepository(db),
-                    event_member_repository=EventMemberRepository(db)
-                )
-
-                params = EventMemberLeaveParams(
-                    event_id,
-                    chat_id,
-                    member_id,
-                )
-
-                message = leave.execute(params)
-            case _:
-                message = 'Что-то пошло не так. Попробуйте позже.'
-
-        reply_markup = InlineKeyboardMarkup(keyboard) if keyboard is not None else None
-
-        await context.bot.send_message(chat_id=chat_id, text=message, reply_markup=reply_markup)
-
-
 async def member_left(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
     reg_member = update.message.left_chat_member.id
@@ -487,22 +383,13 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 `/events` \- Список событий созданный участником в рамках чата
 `/eventcreate Название` \- Создать событие с названием\. В ответ придет ID названия в рамках которого можно совершать операции\. Автоматически делает создателя участником\.
-Пример: `/eventcreate Заказчик охуел\. Послать нахуй в 23 августа в 18:00`
+Пример: `/eventcreate Заказчик охуел\. Послать нахуй 23 августа в 18:00`
 
 `/eventupdate ID Название` \- Изменение текста в сообщении\.
 Пример: `/eventupdate 5 Илюха охуел просто послать его нахуй`
 
 `/eventdelete ID` \- Удаляет навсегда событие\. После удаления востановлению не понадлежит\. Также удаляет всех участников
 Пример: `/eventdelete 2`
-
-`/eventremind ID` \- Напомнить об событии другим участникам
-Пример: `/eventremind 10`
-
-`/eventinvite ID` \- Тот кто хочет участвовать в событии вводит эту команду\. При напоминании участник будет тегироваться
-Пример: `/eventinvite 14`
-
-`/eventleave ID` \- Если вдруг отказываетесь от участия в событии
-Пример: `/eventleave 15`
     """
 
     await update.message.reply_text(
@@ -578,17 +465,12 @@ if __name__ == '__main__':
         CommandHandler('eventcreate', events.event_create),
         CommandHandler('eventupdate', events.event_update),
         CommandHandler('eventdelete', events.event_delete),
-        CommandHandler('eventremind', events.event_remind),
-
-        #events members
-        CommandHandler('eventinvite', event_members.member_invite),
-        CommandHandler('eventleave', event_members.member_leave),
 
         # help
         CommandHandler('help', help),
 
-        # query
-        CallbackQueryHandler(confirm_dialogs)
+        # handle query from keyboard
+        CallbackQueryHandler(keyboard_handle)
     ])
 
     application.add_handler(MessageHandler(filters.StatusUpdate.LEFT_CHAT_MEMBER, member_left))

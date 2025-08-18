@@ -24,7 +24,7 @@ class EventDelete:
             return 'Событие не найдено'
 
         if event.member_id != params.member_id:
-            return "Не твое, не трожь"
+            return 'Не твое, не трожь'
 
         members = self.event_member_repository.getListByEventId(params.event_id)
 
@@ -35,6 +35,6 @@ class EventDelete:
 
                 self.repository.delete(event)
         except:
-            return "Что-то пошло не так"
+            return 'Что-то пошло не так'
 
-        return "Событие удалено"
+        return f"Вас кажется кинули. Событие {event.text} удалено"

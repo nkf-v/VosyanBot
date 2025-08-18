@@ -146,35 +146,6 @@ class TestEvents:
         )
 
     @pytest.mark.asyncio
-    async def test_remind_command(self):
-        # Создаем мок Update
-        update = Update(
-            update_id=1,
-            message=Message(
-                message_id=1,
-                date=datetime(2025, 1, 1, 12, 0, 0),
-                text="/eventremind 1",
-                chat=Chat(id=1, type=constants.ChatType.GROUP),
-                from_user=self.create_user()
-            )
-        )
-
-        context, mock = self.create_context(['1'])
-
-        await event_remind(update, context)
-
-        mock.assert_called_once_with(
-            chat_id=1,
-            text='\n'.join([
-                'Событие:',
-                f"- ID 1 - Test",
-                '',
-                'Участники:',
-                '- First Last (@name)',
-            ])
-        )
-
-    @pytest.mark.asyncio
     async def test_delete_command(self):
         # Создаем мок Update
         update = Update(

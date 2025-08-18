@@ -4,7 +4,7 @@ from telegram.ext import ContextTypes
 from src.applications.events import create
 from src.applications.events.delete import EventDelete, EventDeleteParams
 from src.applications.events.get_list import GetEventList, EventListPresenter
-from src.applications.events.remind import EventRemind, EventRemindParams, EventRemindResult
+from src.applications.events.remind import EventRemindPresenter
 from src.applications.events.update import EventUpdate, EventUpdateParams
 from src.models import db
 from src.repositories import EventRepository, EventMemberRepository
@@ -37,7 +37,7 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
         full_name,
     )
 
-    result = EventRemindResult()
+    result = EventRemindPresenter()
     event_create_executor.execute(params, result)
 
     message, keyboard = result.present()
@@ -126,32 +126,3 @@ async def event_delete(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = deleter.execute(params)
 
     await context.bot.send_message(chat_id=chat_id, text=message)
-
-
-async def event_remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.message.chat_id
-    member_id = update.message.from_user.id
-
-    event_id = context.args[0] if context.args[0] else 0
-    if not event_id.isdigit() or event_id == 0:
-        context.bot.send_message(chat_id=chat_id, text='Событие не найдено')
-        return
-
-    remind = EventRemind(
-        event_repository=EventRepository(db),
-        event_member_repository=EventMemberRepository(db)
-    )
-
-    params = EventRemindParams(
-        event_id,
-        chat_id,
-        member_id,
-    )
-
-    result = EventRemindResult()
-    remind.execute(params, result)
-    message, keyboard = result.present()
-
-    reply_markup = InlineKeyboardMarkup(keyboard) if keyboard is not None else None
-
-    await context.bot.send_message(chat_id=chat_id, text=message, reply_markup=reply_markup)

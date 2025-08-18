@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.applications.events.remind import EventRemindResult
+from src.applications.events.remind import EventRemindPresenter
 from src.repositories import EventRepository, EventMemberRepository
 from src.models import Event, EventMember, db
 
@@ -24,7 +24,7 @@ class CreateEvent:
         self.event_repository = event_repository
         self.event_member_repository = event_member_repository
 
-    def execute(self, params: CreateEvenParams, result: EventRemindResult):
+    def execute(self, params: CreateEvenParams, result: EventRemindPresenter):
 
         event = Event(
             chat_id=params.chat_id,

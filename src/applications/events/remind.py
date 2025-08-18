@@ -15,10 +15,9 @@ class EventRemindParams:
 
 # TODO реализацию перенести в presenters.commands.telegram
 # TODO тут оставить абстрактный класс с setters
-@dataclass
-class EventRemindResult:
-    event: Event = None
-    members: List[EventMember] = None
+class EventRemindPresenter:
+    event: Event
+    members: List[EventMember]
     error: str = None
 
     def present(self):
@@ -80,7 +79,7 @@ class EventRemind:
         self.event_repository = event_repository
         self.event_member_repository = event_member_repository
 
-    def execute(self, params: EventRemindParams, result: EventRemindResult):
+    def execute(self, params: EventRemindParams, result: EventRemindPresenter):
         event = self.event_repository.getById(params.event_id)
 
         if event is None or event.chat_id != params.chat_id:
