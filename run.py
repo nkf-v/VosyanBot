@@ -406,21 +406,36 @@ async def error(update: object, context: ContextTypes.DEFAULT_TYPE):
     tb_string = "".join(tb_list)
 
     update_str = update.to_dict() if isinstance(update, Update) else str(update)
-    message = (
-        "An exception was raised while handling an update\n"
-        "<b>Update</b>\n"
-        f"<pre>{html.escape(json.dumps(update_str, indent=2, ensure_ascii=False))}</pre>\n\n"
-        "<b>Context Chat</b>\n"
-        f"<pre>context.chat_data = {html.escape(str(context.chat_data))}</pre>\n\n"
-        "<b>Context User</b>\n"
-        f"<pre>context.user_data = {html.escape(str(context.user_data))}</pre>\n\n"
-        "<b>Trace</b>\n"
-        f"<pre>{html.escape(tb_string)}</pre>"
-    )
 
-    # Finally, send the message
+    chat_id = os.getenv('DEVELOPERT_CHAT_ID')
     await context.bot.send_message(
-        chat_id=os.getenv('DEVELOPERT_CHAT_ID'), text=message, parse_mode=ParseMode.HTML
+        chat_id=chat_id,
+        text=(
+            "An exception was raised while handling an update\n"
+            "<b>Update</b>\n"
+            f"<pre>{html.escape(json.dumps(update_str, indent=2, ensure_ascii=False))}</pre>\n\n"
+        ), parse_mode=ParseMode.HTML
+    )
+    await context.bot.send_message(
+        chat_id=chat_id,
+        text=(
+            "<b>Context Chat</b>\n"
+            f"<pre>context.chat_data = {html.escape(str(context.chat_data))}</pre>\n\n"
+        ), parse_mode=ParseMode.HTML
+    )
+    await context.bot.send_message(
+        chat_id=chat_id,
+        text=(
+            "<b>Context User</b>\n"
+            f"<pre>context.user_data = {html.escape(str(context.user_data))}</pre>\n\n"
+        ), parse_mode=ParseMode.HTML
+    )
+    context.bot.send_message(
+        chat_id=chat_id,
+        text=(
+            "<b>Trace</b>\n"
+            f"<pre>{html.escape(tb_string)}</pre>"
+        ), parse_mode=ParseMode.HTML
     )
 
 if __name__ == '__main__':
@@ -465,6 +480,7 @@ if __name__ == '__main__':
         CommandHandler('eventcreate', events.event_create),
         CommandHandler('eventupdate', events.event_update),
         CommandHandler('eventdelete', events.event_delete),
+        CommandHandler('eventremind', events.event_delete),
 
         # help
         CommandHandler('help', help),

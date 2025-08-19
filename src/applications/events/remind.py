@@ -79,12 +79,12 @@ class EventRemind:
         self.event_repository = event_repository
         self.event_member_repository = event_member_repository
 
-    def execute(self, params: EventRemindParams, result: EventRemindPresenter):
+    def execute(self, params: EventRemindParams, presenter: EventRemindPresenter):
         event = self.event_repository.getById(params.event_id)
 
         if event is None or event.chat_id != params.chat_id:
-            result.error = 'Событие не найдено'
-            pass
+            presenter.error = 'Событие не найдено'
+            return
 
         event_members = self.event_member_repository.getListByEventId(params.event_id)
         is_event_member = False
@@ -94,10 +94,8 @@ class EventRemind:
                 is_event_member = True
 
         if not is_event_member:
-            result.error = 'Ты не участвуешь в событие. Пшол вон'
-            pass
+            presenter.error = 'Ты не участвуешь в событие. Пшол вон'
+            return
 
-        result.event = event
-        result.members = event_members
-
-        pass
+        presenter.event = event
+        presenter.members = event_members
