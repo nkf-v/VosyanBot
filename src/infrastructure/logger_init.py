@@ -3,7 +3,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 def logger_init():
     # TODO Инициализацию логера и перехват исключений убрать в отдельные классы
-    formatter = logging.Formatter('%(asctime)s : %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s :  %(name)s.%(levelname)s - %(message)s')
 
     file_handler = TimedRotatingFileHandler(
         'bot.log',
@@ -37,7 +37,7 @@ def logger_init():
     peewee_logger = logging.getLogger("peewee")
     peewee_logger.addHandler(file_handler)
     peewee_logger.addHandler(console_handler)
-    peewee_logger.setLevel(logging.DEBUG)
+    peewee_logger.setLevel(logging.INFO)
 
     app_logger = logging.getLogger('bot')
     app_logger.addHandler(file_handler)
