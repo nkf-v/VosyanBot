@@ -23,6 +23,10 @@ class EventMemberInvitePresenter:
 
         return f"{self.member.user_name} ({self.member.nick_name}) участвует в событие '{self.event.name}'. Но лучше бы он не соглашался"
 
+    def is_refresh(self):
+        return self.error is None
+
+
 class EventMemberInvite:
     event_repository: EventRepository
     event_member_repository: EventMemberRepository

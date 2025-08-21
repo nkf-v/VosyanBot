@@ -20,6 +20,10 @@ class EventMemberLeavePresenter:
 
         return f"{self.member.user_name} ({self.member.nick_name}) лох, свалил из события '{self.event.name}'. Без него будет лучше"
 
+    def is_refresh(self):
+        return self.error is None
+
+
 class EventMemberLeave:
     event_repository: EventRepository
     event_member_repository: EventMemberRepository

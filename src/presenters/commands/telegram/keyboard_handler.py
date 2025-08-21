@@ -96,7 +96,7 @@ async def keyboard_handle(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
                 message = presenter.present()
 
-                refresh = True
+                refresh = presenter.is_refresh()
 
             case 'event_leave':
                 leave = EventMemberLeave(
@@ -116,7 +116,7 @@ async def keyboard_handle(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
                 message = presenter.present()
 
-                refresh = True
+                refresh = presenter.is_refresh()
 
             case _:
                 message = 'Что-то пошло не так. Попробуйте позже.'
