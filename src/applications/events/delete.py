@@ -37,4 +37,4 @@ class EventDelete:
         except:
             return 'Что-то пошло не так'
 
-        return f"Вас кажется кинули. Событие {event.text} удалено"
+        return f"Вас кажется кинули. Событие {event.name} удалено"
