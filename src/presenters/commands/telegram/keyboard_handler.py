@@ -6,9 +6,10 @@ from telegram.ext import ContextTypes
 from src.applications.event_members.invite import EventMemberInvite, EventMemberInviteParams, EventMemberInvitePresenter
 from src.applications.event_members.leave import EventMemberLeave, EventMemberLeaveParams, EventMemberLeavePresenter
 from src.applications.events.delete import EventDelete, EventDeleteParams
-from src.applications.events.remind import EventRemind, EventRemindParams, EventRemindPresenter
+from src.applications.events.remind import EventRemind, EventRemindParams
 from src.db_functions import reset_stats_data, remove_chat_from_carmic_dices_in_db, add_chat_to_carmic_dices_in_db
 from src.models import db
+from src.presenters.commands.telegram.presenters import EventDetailTelegramMessagePresenter
 from src.repositories import EventRepository, EventMemberRepository
 
 
@@ -69,7 +70,7 @@ async def keyboard_handle(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                     member_id,
                 )
 
-                result = EventRemindPresenter()
+                result = EventDetailTelegramMessagePresenter()
 
                 remind.execute(params, result)
 
@@ -136,7 +137,7 @@ async def keyboard_handle(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 member_id,
             )
 
-            result = EventRemindPresenter()
+            result = EventDetailTelegramMessagePresenter()
 
             remind.execute(params, result)
 
