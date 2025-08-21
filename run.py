@@ -480,7 +480,7 @@ if __name__ == '__main__':
         CommandHandler('eventcreate', events.event_create),
         CommandHandler('eventupdate', events.event_update),
         CommandHandler('eventdelete', events.event_delete),
-        CommandHandler('eventremind', events.event_delete),
+        CommandHandler('eventremind', events.event_remind),
 
         # help
         CommandHandler('help', help),
