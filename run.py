@@ -430,7 +430,7 @@ async def error(update: object, context: ContextTypes.DEFAULT_TYPE):
             f"<pre>context.user_data = {html.escape(str(context.user_data))}</pre>\n\n"
         ), parse_mode=ParseMode.HTML
     )
-    context.bot.send_message(
+    await context.bot.send_message(
         chat_id=chat_id,
         text=(
             "<b>Trace</b>\n"
