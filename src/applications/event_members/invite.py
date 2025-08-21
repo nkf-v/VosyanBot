@@ -21,7 +21,7 @@ class EventMemberInvitePresenter:
         if self.error is not None:
             return self.error
 
-        return f"{self.member.user_name} ({self.member.nick_name}) участвует в событие '{self.event.text}'. Но лучше бы он не соглашался"
+        return f"{self.member.user_name} ({self.member.nick_name}) участвует в событие '{self.event.name}'. Но лучше бы он не соглашался"
 
 class EventMemberInvite:
     event_repository: EventRepository
@@ -40,7 +40,7 @@ class EventMemberInvite:
 
         member = self.event_member_repository.getOneByEventAndMemberId(params.event_id, params.member_id)
         if member is not None:
-            presenter.error = f"{params.user_name}, ты уже в событии {event.text}, дурачек"
+            presenter.error = f"{params.user_name}, ты уже в событии {event.name}, дурачек"
             return
 
         member = EventMember(

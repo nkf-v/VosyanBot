@@ -18,7 +18,7 @@ class EventMemberLeavePresenter:
         if self.error is not None:
             return self.error
 
-        return f"{self.member.user_name} ({self.member.nick_name}) лох, свалил из события '{self.event.text}'. Без него будет лучше"
+        return f"{self.member.user_name} ({self.member.nick_name}) лох, свалил из события '{self.event.name}'. Без него будет лучше"
 
 class EventMemberLeave:
     event_repository: EventRepository
