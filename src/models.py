@@ -92,6 +92,7 @@ class Event(Model):
 
     chat_id = BigIntegerField()
     member_id = BigIntegerField()
+    name = TextField(default='')
     text = TextField()
 
 class EventMember(Model):

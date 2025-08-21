@@ -1,11 +1,10 @@
-import json
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List
 
-from telegram import InlineKeyboardButton
-
 from src.models import EventMember, Event
 from src.repositories import EventRepository, EventMemberRepository
+
 
 @dataclass
 class EventRemindParams:
@@ -13,63 +12,20 @@ class EventRemindParams:
     chat_id: int
     member_id: int
 
-# TODO реализацию перенести в presenters.commands.telegram
-# TODO тут оставить абстрактный класс с setters
-class EventRemindPresenter:
-    event: Event
-    members: List[EventMember]
-    error: str = None
 
-    def present(self):
-        if self.error is not None:
-            return self.error, None
+class EventRemindPresenter(ABC):
+    @abstractmethod
+    def set_event(self, event: Event) -> None:
+        pass
 
-        messages = [
-            'Событие:',
-            f"- ID {self.event.get_id()} - {self.event.text}",
-            '',
-            'Участники:'
-        ]
+    @abstractmethod
+    def set_members(self, members: List[EventMember]) -> None:
+        pass
 
-        for member in self.members:
-            messages.append(f"- {member.user_name} (@{member.nick_name})")
+    @abstractmethod
+    def set_error(self, error_message: str) -> None:
+        pass
 
-        keyboard = [
-            [
-                InlineKeyboardButton(
-                    text="Иду",
-                    callback_data=json.dumps({
-                        'action': 'event_invite',
-                        'event_id': self.event.get_id(),
-                    })
-                ),
-                InlineKeyboardButton(
-                    text="нахрен",
-                    callback_data=json.dumps({
-                        'action': 'event_leave',
-                        'event_id': self.event.get_id(),
-                    })
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Напомнить",
-                    callback_data=json.dumps({
-                        'action': 'event_remind',
-                        'event_id': self.event.get_id(),
-                    })
-                ),
-                InlineKeyboardButton(
-                    text="Удоли",
-                    callback_data=json.dumps({
-                        'action': 'event_delete',
-                        'event_id': self.event.get_id(),
-                    })
-                ),
-            ]
-        ]
-
-        return '\n'.join(messages), keyboard
 
 class EventRemind:
     event_repository: EventRepository
@@ -83,19 +39,21 @@ class EventRemind:
         event = self.event_repository.getById(params.event_id)
 
         if event is None or event.chat_id != params.chat_id:
-            presenter.error = 'Событие не найдено'
+            presenter.set_error('Событие не найдено')
             return
 
-        event_members = self.event_member_repository.getListByEventId(params.event_id)
+        members = self.event_member_repository.getListByEventId(params.event_id)
         is_event_member = False
 
-        for member in event_members:
+        for member in members:
             if member.member_id == params.member_id:
                 is_event_member = True
 
         if not is_event_member:
-            presenter.error = 'Ты не участвуешь в событие. Пшол вон'
+            presenter.set_error('Ты не участвуешь в событие. Пшол вон')
             return
 
-        presenter.event = event
-        presenter.members = event_members
+        presenter.set_event(event)
+        presenter.set_members([member for member in members])
+
+        return

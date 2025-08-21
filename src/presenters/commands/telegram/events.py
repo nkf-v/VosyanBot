@@ -1,12 +1,16 @@
+import re
+
 from telegram import Update, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
 from src.applications.events import create
 from src.applications.events.delete import EventDelete, EventDeleteParams
-from src.applications.events.get_list import GetEventList, EventListPresenter
-from src.applications.events.remind import EventRemindPresenter, EventRemind, EventRemindParams
+from src.applications.events.get_list import GetEventList
+from src.applications.events.remind import EventRemind, EventRemindParams
 from src.applications.events.update import EventUpdate, EventUpdateParams
+from src.infrastructure.telegram import User
 from src.models import db
+from src.presenters.commands.telegram.presenters import EventListMessagePresenter, EventDetailTelegramMessagePresenter
 from src.repositories import EventRepository, EventMemberRepository
 
 
@@ -14,14 +18,18 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
     member_id = update.message.from_user.id
 
-    text = ' '.join(context.args) if context.args[0] else ''
+    message_text = re.sub(r'/[\w\-_]* ', '', update.message.text)
 
-    if text == '':
+    lines = message_text.splitlines()
+    name = lines[0] if lines else ''
+    text = '\n'.join(lines[1:]) if len(lines) > 1 else ""
+
+    if name == '':
         context.bot.send_message(chat_id=chat_id, text='Придумай название своему бесполезному событию')
         return
 
-    username = update.message.from_user.username
-    full_name = update.message.from_user.full_name
+    nick_name = update.message.from_user.username
+    user_name = update.message.from_user.full_name
 
 
     event_create_executor = create.CreateEvent(
@@ -32,19 +40,23 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
     params = create.CreateEvenParams(
         chat_id,
         member_id,
+        name,
         text,
-        username,
-        full_name,
+        User(
+            nick_name,
+            user_name,
+        )
     )
 
-    result = EventRemindPresenter()
-    event_create_executor.execute(params, result)
+    presenter = EventDetailTelegramMessagePresenter()
+    event_create_executor.execute(params, presenter)
 
-    message, keyboard = result.present()
+    message, keyboard = presenter.present()
 
     reply_markup = InlineKeyboardMarkup(keyboard) if keyboard is not None else None
 
     await update.message.reply_text(text=message, reply_markup=reply_markup)
+
 
 async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
@@ -55,7 +67,7 @@ async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
         event_member_repository=EventMemberRepository(db)
     )
 
-    presenter = EventListPresenter()
+    presenter = EventListMessagePresenter()
 
     getter.execute(
         chat_id=chat_id,
@@ -72,35 +84,43 @@ async def event_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
     member_id = update.message.from_user.id
 
-    args = context.args
-
-    event_id = args[0] if args[0] else 0
+    event_id = context.args[0] if context.args[0] else 0
     if not event_id.isdigit() or event_id == 0:
         context.bot.send_message(chat_id=chat_id, text='Событие не найдено')
         return
 
-    args.pop(0)
+    message_text = re.sub(r'/[\w\-_]* \d* ]', '', update.message.text)
 
-    text = ' '.join(args) if args[0] else ''
+    lines = message_text.splitlines()
+    name = lines[0] if lines else ''
+    text = '\n'.join(lines[1:]) if len(lines) > 1 else ""
 
-    if text == '':
+    if name == '':
         context.bot.send_message(chat_id=chat_id, text='Придумай название своему бесполезному событию')
         return
 
     updater = EventUpdate(
-        repository=EventRepository(db)
+        repository=EventRepository(db),
+        event_member_repository=EventMemberRepository(db),
     )
 
     params = EventUpdateParams(
         chat_id,
         member_id,
         event_id,
+        name,
         text,
     )
 
-    message = updater.execute(params)
+    presenter = EventDetailTelegramMessagePresenter()
 
-    await context.bot.send_message(chat_id=chat_id, text=message)
+    updater.execute(params, presenter)
+
+    message, keyboard = presenter.present()
+
+    reply_markup = InlineKeyboardMarkup(keyboard) if keyboard is not None else None
+
+    await context.bot.send_message(chat_id=chat_id, text=message, reply_markup=reply_markup)
 
 
 async def event_remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -123,7 +143,7 @@ async def event_remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
         member_id,
     )
 
-    presenter = EventRemindPresenter()
+    presenter = EventDetailTelegramMessagePresenter()
     remind.execute(params, presenter)
     message, keyboard = presenter.present()
 

@@ -1,18 +1,21 @@
-import typer
 import time
+
+import typer
 
 from src.applications.event_members.invite import EventMemberInvite, EventMemberInviteParams
 from src.applications.event_members.leave import EventMemberLeave, EventMemberLeaveParams
+from src.applications.events.create import CreateEvenParams, CreateEvent
+from src.applications.events.delete import EventDelete, EventDeleteParams
+from src.applications.events.get_list import GetEventList
 from src.applications.events.remind import EventRemindParams, EventRemind
 from src.applications.events.update import EventUpdate, EventUpdateParams
 from src.applications.members.registry import MemberRegistration, MemberRegistrationDto
-from src.applications.events.create import CreateEvenParams, CreateEvent
-from src.applications.events.get_list import GetEventList, EventListPresenter
-from src.applications.events.delete import EventDelete, EventDeleteParams
 from src.applications.members.unregister import MemberUnregister
-
 from src.infrastructure.db_init import DBInit
+from src.infrastructure.telegram import User
 from src.models import db
+from src.presenters.commands.telegram.events import EventListMessagePresenter
+from src.presenters.commands.telegram.presenters import EventDetailTelegramMessagePresenter
 from src.repositories import (
     MemberRepository,
     StatsRepository,
@@ -63,20 +66,29 @@ def db_init():
     typer.echo('Success init')
 
 @app.command()
-def event_create(chat_id: int, member_id: int, text: str):
+def event_create(chat_id: int, member_id: int, name: str, text: str):
     creator = CreateEvent(
         event_repository=EventRepository(db),
         event_member_repository=EventMemberRepository(db)
     )
-    message = creator.execute(
-        params=CreateEvenParams(
-            chat_id,
-            member_id,
-            text,
-            'cli',
-            'cli'
-        )
+
+    params = CreateEvenParams(
+        chat_id,
+        member_id,
+        name,
+        text,
+        User('cli', 'Cli')
     )
+
+    presenter = EventDetailTelegramMessagePresenter()
+
+    creator.execute(
+        params=params,
+        presenter=presenter
+    )
+
+    message, _ = presenter.present()
+
     typer.echo(message)
 
 @app.command()
@@ -86,7 +98,7 @@ def events(chat_id: int, member_id: int):
         event_member_repository=EventMemberRepository(db)
     )
 
-    presenter = EventListPresenter()
+    presenter = EventListMessagePresenter()
 
     getter.execute(
         chat_id=chat_id,
@@ -114,19 +126,25 @@ def event_delete(event_id: int, chat_id: int, member_id: int):
     typer.echo(message)
 
 @app.command()
-def event_update(event_id: int, chat_id: int, member_id: int, text: str):
+def event_update(event_id: int, chat_id: int, member_id: int, name: str, text: str):
     update = EventUpdate(
-        repository=EventRepository(db)
+        repository=EventRepository(db),
+        event_member_repository=EventMemberRepository(db)
     )
 
     params = EventUpdateParams(
         event_id,
         chat_id,
         member_id,
-        text
+        name,
+        text,
     )
 
-    message = update.execute(params)
+    presenter = EventDetailTelegramMessagePresenter()
+
+    update.execute(params, presenter)
+
+    message, _ = presenter
 
     typer.echo(message)
 
@@ -143,7 +161,11 @@ def event_remind(event_id: int, chat_id: int, member_id: int):
         member_id,
     )
 
-    message = remind.execute(params)
+    presenter = EventDetailTelegramMessagePresenter()
+
+    remind.execute(params, presenter)
+
+    message, _ = presenter.present()
 
     typer.echo(message)
 
