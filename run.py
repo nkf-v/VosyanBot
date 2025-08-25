@@ -4,12 +4,14 @@ import os
 import sys
 import time
 import traceback
+from uuid import uuid4
 
 import telegram.error
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot, InlineQueryResultArticle, \
+    InputTextMessageContent
 from telegram.constants import ParseMode
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler, MessageHandler, \
-    filters
+    filters, InlineQueryHandler
 
 import src.messages as messages
 import src.stickers as stickers
@@ -438,6 +440,37 @@ async def error(update: object, context: ContextTypes.DEFAULT_TYPE):
         ), parse_mode=ParseMode.HTML
     )
 
+async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle the inline query. This is run when you type: @botusername <query>"""
+    query = update.inline_query.query
+
+    if not query:  # empty query should not be handled
+        return
+
+    results = [
+        InlineQueryResultArticle(
+            id=str(uuid4()),
+            title="Caps",
+            input_message_content=InputTextMessageContent(query.upper()),
+        ),
+        InlineQueryResultArticle(
+            id=str(uuid4()),
+            title="Bold",
+            input_message_content=InputTextMessageContent(
+                f"<b>{html.escape(query)}</b>", parse_mode=ParseMode.HTML
+            ),
+        ),
+        InlineQueryResultArticle(
+            id=str(uuid4()),
+            title="Italic",
+            input_message_content=InputTextMessageContent(
+                f"<i>{html.escape(query)}</i>", parse_mode=ParseMode.HTML
+            ),
+        ),
+    ]
+
+    await update.inline_query.answer(results)
+
 if __name__ == '__main__':
     application = (
         ApplicationBuilder()
@@ -486,7 +519,10 @@ if __name__ == '__main__':
         CommandHandler('help', help),
 
         # handle query from keyboard
-        CallbackQueryHandler(keyboard_handle)
+        CallbackQueryHandler(keyboard_handle),
+
+        # inline keyboard
+        InlineQueryHandler(inline_query)
     ])
 
     application.add_handler(MessageHandler(filters.StatusUpdate.LEFT_CHAT_MEMBER, member_left))
