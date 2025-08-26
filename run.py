@@ -392,6 +392,9 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 `/eventdelete ID` \- Удаляет навсегда событие\. После удаления востановлению не понадлежит\. Также удаляет всех участников
 Пример: `/eventdelete 2`
+
+**Доп херня**
+`/dice` \- Кинуть кубы
     """
 
     await update.message.reply_text(
@@ -471,6 +474,61 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
     await update.inline_query.answer(results)
 
+async def dice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                text="d2",
+                callback_data=json.dumps({
+                    'action': 'dice_roll',
+                    'dice': 2,
+                })
+            ),
+            InlineKeyboardButton(
+                text="d4",
+                callback_data=json.dumps({
+                    'action': 'dice_roll',
+                    'dice': 4,
+                })
+            ),
+            InlineKeyboardButton(
+                text="d6",
+                callback_data=json.dumps({
+                    'action': 'dice_roll',
+                    'dice': 6,
+                })
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                text="d10",
+                callback_data=json.dumps({
+                    'action': 'dice_roll',
+                    'dice': 20,
+                })
+            ),
+            InlineKeyboardButton(
+                text="d20",
+                callback_data=json.dumps({
+                    'action': 'dice_roll',
+                    'dice': 20,
+                })
+            ),
+            InlineKeyboardButton(
+                text="d100",
+                callback_data=json.dumps({
+                    'action': 'dice_roll',
+                    'dice': 100,
+                })
+            ),
+        ]
+    ]
+
+    await update.message.reply_text(
+        text='Выберите кубы',
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
+
 if __name__ == '__main__':
     application = (
         ApplicationBuilder()
@@ -517,6 +575,9 @@ if __name__ == '__main__':
 
         # help
         CommandHandler('help', help),
+
+        # dice
+        CommandHandler('dice', dice),
 
         # handle query from keyboard
         CallbackQueryHandler(keyboard_handle),

@@ -1,4 +1,5 @@
 import json
+import random
 
 from telegram import Update, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
@@ -37,13 +38,21 @@ async def keyboard_handle(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await update.callback_query.edit_message_text(text='Кармические кубики включены')
     else:
         data = json.loads(query)
-        action = data['action']
-        event_id = data['event_id']
+        action = data.get('action')
+        event_id = data.get('event_id')
         message = None
         keyboard = None
         refresh = False
 
         match action:
+            case 'dice_roll':
+                dice = data.get('dice')
+                result = random.randint(1, dice)
+                message = f'Твой результат d{dice} => {result}'
+                await update.callback_query.edit_message_text(text=message)
+
+                return
+
             case 'event_delete':
                 delete = EventDelete(
                     repository=EventRepository(db),
