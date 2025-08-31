@@ -1,7 +1,8 @@
 import re
 
-from telegram import Update, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ContextTypes
+from telegram.constants import ChatType
 
 from src.applications.events import create
 from src.applications.events.delete import EventDelete, EventDeleteParams
@@ -55,6 +56,7 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     reply_markup = InlineKeyboardMarkup(keyboard) if keyboard is not None else None
 
+    await update.message.edit_reply_markup(reply_markup=ReplyKeyboardRemove())
     await update.message.reply_text(text=message, reply_markup=reply_markup)
 
 
@@ -77,7 +79,15 @@ async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     message = presenter.present()
 
-    await context.bot.send_message(chat_id=chat_id, text=message)
+    reply_markup = None
+
+    if update.message.chat.type == ChatType.PRIVATE:
+        keyboard = [
+            ['Создать событие'],
+        ]
+        reply_markup = ReplyKeyboardMarkup(keyboard)
+
+    await context.bot.send_message(chat_id=chat_id, text=message, reply_markup=reply_markup)
 
 
 async def event_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
