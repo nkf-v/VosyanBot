@@ -102,14 +102,14 @@ class EventDetailTelegramMessagePresenter(EventCreatePresenter, EventRemindPrese
         keyboard = [
             [
                 InlineKeyboardButton(
-                    text="Иду",
+                    text="🚶🏻‍♂️‍➡️ Иду",
                     callback_data=json.dumps({
                         'action': 'event_invite',
                         'event_id': self.event.get_id(),
                     })
                 ),
                 InlineKeyboardButton(
-                    text="нахрен",
+                    text="нахрен 🚶🏻‍♂️",
                     callback_data=json.dumps({
                         'action': 'event_leave',
                         'event_id': self.event.get_id(),
@@ -118,14 +118,30 @@ class EventDetailTelegramMessagePresenter(EventCreatePresenter, EventRemindPrese
             ],
             [
                 InlineKeyboardButton(
-                    text="Напомнить",
+                    text="+ 🐗 кабанчик",
+                    callback_data=json.dumps({
+                        'action': 'event_invite_inc',
+                        'event_id': self.event.get_id(),
+                    })
+                ),
+                InlineKeyboardButton(
+                    text="- 🐗 кабанчик",
+                    callback_data=json.dumps({
+                        'action': 'event_leave_dec',
+                        'event_id': self.event.get_id(),
+                    })
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🔔 Напомнить",
                     callback_data=json.dumps({
                         'action': 'event_remind',
                         'event_id': self.event.get_id(),
                     })
                 ),
                 InlineKeyboardButton(
-                    text="Удоли",
+                    text="🗑️ Удоли",
                     callback_data=json.dumps({
                         'action': 'event_delete',
                         'event_id': self.event.get_id(),
