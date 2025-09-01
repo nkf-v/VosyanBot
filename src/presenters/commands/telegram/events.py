@@ -56,7 +56,6 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     reply_markup = InlineKeyboardMarkup(keyboard) if keyboard is not None else None
 
-    await update.message.edit_reply_markup(reply_markup=ReplyKeyboardRemove())
     await update.message.reply_text(text=message, reply_markup=reply_markup)
 
 
