@@ -1,8 +1,8 @@
 import re
 
-from telegram import Update, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import ContextTypes
+from telegram import Update, InlineKeyboardMarkup, ReplyKeyboardMarkup
 from telegram.constants import ChatType
+from telegram.ext import ContextTypes
 
 from src.applications.events import create
 from src.applications.events.delete import EventDelete, EventDeleteParams
@@ -14,6 +14,10 @@ from src.models import db
 from src.presenters.commands.telegram.presenters import EventListMessagePresenter, EventDetailTelegramMessagePresenter
 from src.repositories import EventRepository, EventMemberRepository
 
+(
+    EVENT_ENTER_TEXT,
+    EVENT_ENTER_IMAGE
+) = range(2)
 
 async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id

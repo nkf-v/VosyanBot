@@ -553,7 +553,7 @@ if __name__ == '__main__':
     switch_on_carmic_dices_in_chat_handler = CommandHandler('carmicdices', switch_on_carmic_dices_in_chat)
 
     application.add_handlers([
-        # pird
+        # pidr
         reg_handler,
         unreg_handler,
         pidor_handler,
