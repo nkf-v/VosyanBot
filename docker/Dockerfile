@@ -14,10 +14,11 @@ FROM python:3.12-slim AS app
 WORKDIR /usr/src/app
 
 COPY --from=builder /app/requirements.txt .
+COPY --from=builder /app/requirements_test.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -r requirements_test.txt
 
 COPY . .
 
-CMD python cli.py sleep
+CMD python -m src.cli sleep

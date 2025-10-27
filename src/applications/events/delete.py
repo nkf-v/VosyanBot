@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
-from src.repositories import EventRepository, EventMemberRepository
-from src.models import db
+from src.domain.events.repositories import EventRepository, EventMemberRepository
 
 @dataclass
 class EventDeleteParams:
@@ -29,7 +28,8 @@ class EventDelete:
         members = self.event_member_repository.getListByEventId(params.event_id)
 
         try:
-            with db.atomic():
+            # TODO сделать сервис транзакций
+            # with db.atomic():
                 for member in members:
                     self.event_member_repository.delete(member)
 

@@ -1,21 +1,21 @@
 from abc import abstractmethod, ABC
 from typing import List
 
-from src.models import Event
-from src.repositories import EventRepository, EventMemberRepository
+import src.domain.events.models as models
+from src.domain.events.repositories import EventRepository, EventMemberRepository
 
 
 class EventListPresenter(ABC):
     @abstractmethod
-    def set_member_events(self, events: List[Event]) -> None:
+    def set_member_events(self, events: List[models.Event]) -> None:
         pass
 
     @abstractmethod
-    def set_invite_events(self, events: List[Event]) -> None:
+    def set_invite_events(self, events: List[models.Event]) -> None:
         pass
 
     @abstractmethod
-    def set_chat_events(self, events: List[Event]) -> None:
+    def set_chat_events(self, events: List[models.Event]) -> None:
         pass
 
 

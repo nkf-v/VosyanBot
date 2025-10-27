@@ -1,4 +1,4 @@
-from src.models import Member, Stats, PidorStats, CurrentNice, CurrentPidor, Event, EventMember
+from src.models import Member, Stats, PidorStats, CurrentNice, CurrentPidor
 from peewee import DoesNotExist, Database
 
 
@@ -88,63 +88,3 @@ class CurrentPidorRepository:
             ).get()
         except DoesNotExist:
             return None
-
-class EventRepository:
-    def __init__(self, db: Database):
-        if db.is_closed():
-            db.connect(reuse_if_open=True)
-
-    def save(self, event: Event):
-        event.save()
-
-    def getListByChatAndMember(self, chat_id: int, member_id: int):
-        return Event.select().where(
-            (Event.chat_id == chat_id)
-        ).where(
-            (Event.member_id == member_id)
-        )
-
-    def getById(self, event_id: int) -> Event | None:
-        try:
-            return Event.get_by_id(event_id)
-        except DoesNotExist:
-            return None
-
-    def delete(self, event: Event):
-        event.delete_instance()
-
-    def getListByIds(self, event_ids):
-        return Event.select().where(Event.id.in_(event_ids))
-
-    def get_list_by_chat(self, chat_id: int):
-        return Event.select().where(Event.chat_id == chat_id)
-
-
-class EventMemberRepository:
-    def __init__(self, db: Database):
-        if db.is_closed():
-            db.connect(reuse_if_open=True)
-
-    def save(self, event_member: EventMember):
-        event_member.save()
-
-    def getListByEventId(self, event_id: int):
-        return EventMember.select().where((EventMember.event_id == event_id))
-
-    def getOneByEventAndMemberId(self, event_id: int, member_id: int):
-        try:
-            return EventMember.select().where(
-                (EventMember.event_id == event_id)
-            ).where(
-                (EventMember.member_id == member_id)
-            ).get()
-        except DoesNotExist:
-            return None
-
-    def delete(self, member: EventMember):
-        member.delete_instance()
-
-    def getListByMemberId(self, member_id: int):
-        return EventMember.select().where(
-            EventMember.member_id == member_id
-        )

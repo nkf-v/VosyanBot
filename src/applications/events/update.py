@@ -1,26 +1,30 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List
 
-from src.models import Member, Event
-from src.repositories import EventRepository, EventMemberRepository
+from src.domain.events.models import Event, EventMember
+from src.domain.events.repositories import EventRepository, EventMemberRepository
 
 
 @dataclass
 class EventUpdateParams:
+    event_id: int
     chat_id: int
     member_id: int
-    event_id: int
     name: str
     text: str
 
 
-class EventUpdatePresenter():
+class EventUpdatePresenter(ABC):
+    @abstractmethod
     def set_event(self, event: Event) -> None:
         pass
 
-    def set_members(self, members: List[Member]) -> None:
+    @abstractmethod
+    def set_members(self, members: List[EventMember]) -> None:
         pass
 
+    @abstractmethod
     def set_error(self, error: str) -> None:
         pass
 

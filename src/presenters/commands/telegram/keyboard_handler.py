@@ -9,12 +9,14 @@ from src.applications.event_members.leave import EventMemberLeave, EventMemberLe
 from src.applications.events.delete import EventDelete, EventDeleteParams
 from src.applications.events.remind import EventRemind, EventRemindParams
 from src.db_functions import reset_stats_data, remove_chat_from_carmic_dices_in_db, add_chat_to_carmic_dices_in_db
-from src.models import db
+from src.infrastructure.containers.events import App
 from src.presenters.commands.telegram.presenters import EventDetailTelegramMessagePresenter
-from src.repositories import EventRepository, EventMemberRepository
 
 
-async def keyboard_handle(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def keyboard_handle(
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+) -> None:
     chat_id = update.callback_query.message.chat_id
     member_id = update.callback_query.from_user.id
     username = update.callback_query.from_user.username
@@ -44,6 +46,13 @@ async def keyboard_handle(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         keyboard = None
         refresh = False
 
+        app = App()
+
+        app.wire(modules=[
+            __name__,
+            'src',
+        ])
+
         match action:
             case 'dice_roll':
                 dice = data.get('dice')
@@ -54,25 +63,16 @@ async def keyboard_handle(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 return
 
             case 'event_delete':
-                delete = EventDelete(
-                    repository=EventRepository(db),
-                    event_member_repository=EventMemberRepository(db)
-                )
-
                 params = EventDeleteParams(
                     event_id,
                     chat_id,
                     member_id,
                 )
 
+                delete: EventDelete = app.event_applications().delete_event()
                 message = delete.execute(params)
 
             case 'event_remind':
-                remind = EventRemind(
-                    event_repository=EventRepository(db),
-                    event_member_repository=EventMemberRepository(db)
-                )
-
                 params = EventRemindParams(
                     event_id,
                     chat_id,
@@ -81,16 +81,12 @@ async def keyboard_handle(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
                 result = EventDetailTelegramMessagePresenter()
 
+                remind: EventRemind = app.event_applications().remind_event()
                 remind.execute(params, result)
 
                 message, keyboard = result.present()
 
             case 'event_invite':
-                invite = EventMemberInvite(
-                    event_repository=EventRepository(db),
-                    event_member_repository=EventMemberRepository(db)
-                )
-
                 params = EventMemberInviteParams(
                     event_id,
                     chat_id,
@@ -101,6 +97,7 @@ async def keyboard_handle(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
                 presenter = EventMemberInvitePresenter()
 
+                invite: EventMemberInvite = app.event_member_applications().invite()
                 invite.execute(params, presenter)
 
                 message = presenter.present()
@@ -108,11 +105,6 @@ async def keyboard_handle(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 refresh = presenter.is_refresh()
 
             case 'event_leave':
-                leave = EventMemberLeave(
-                    event_repository=EventRepository(db),
-                    event_member_repository=EventMemberRepository(db)
-                )
-
                 params = EventMemberLeaveParams(
                     event_id,
                     chat_id,
@@ -121,6 +113,7 @@ async def keyboard_handle(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
                 presenter = EventMemberLeavePresenter()
 
+                leave: EventMemberLeave = app.event_member_applications().leave()
                 leave.execute(params, presenter)
 
                 message = presenter.present()
@@ -135,11 +128,6 @@ async def keyboard_handle(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await context.bot.send_message(chat_id=chat_id, text=message, reply_markup=reply_markup)
 
         if refresh:
-            remind = EventRemind(
-                event_repository=EventRepository(db),
-                event_member_repository=EventMemberRepository(db)
-            )
-
             params = EventRemindParams(
                 event_id,
                 chat_id,
@@ -148,6 +136,7 @@ async def keyboard_handle(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
             result = EventDetailTelegramMessagePresenter()
 
+            remind: EventRemind = app.event_applications().remind_event()
             remind.execute(params, result)
 
             message, keyboard = result.present()

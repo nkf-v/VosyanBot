@@ -5,21 +5,24 @@ from telegram.constants import ChatType
 from telegram.ext import ContextTypes
 
 from src.applications.events import create
+from src.applications.events.create import CreateEvent
 from src.applications.events.delete import EventDelete, EventDeleteParams
 from src.applications.events.get_list import GetEventList
 from src.applications.events.remind import EventRemind, EventRemindParams
 from src.applications.events.update import EventUpdate, EventUpdateParams
+from src.infrastructure.containers.events import App
 from src.infrastructure.telegram import User
-from src.models import db
 from src.presenters.commands.telegram.presenters import EventListMessagePresenter, EventDetailTelegramMessagePresenter
-from src.repositories import EventRepository, EventMemberRepository
 
 (
     EVENT_ENTER_TEXT,
     EVENT_ENTER_IMAGE
 ) = range(2)
 
-async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def event_create(
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+):
     chat_id = update.message.chat_id
     member_id = update.message.from_user.id
 
@@ -36,11 +39,12 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
     nick_name = update.message.from_user.username
     user_name = update.message.from_user.full_name
 
+    app = App()
 
-    event_create_executor = create.CreateEvent(
-        event_repository=EventRepository(db),
-        event_member_repository=EventMemberRepository(db)
-    )
+    app.wire(modules=[
+        __name__,
+        'src',
+    ])
 
     params = create.CreateEvenParams(
         chat_id,
@@ -54,6 +58,7 @@ async def event_create(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     presenter = EventDetailTelegramMessagePresenter()
+    event_create_executor: CreateEvent = app.event_applications().create_event()
     event_create_executor.execute(params, presenter)
 
     message, keyboard = presenter.present()
@@ -67,13 +72,17 @@ async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
     member_id = update.message.from_user.id
 
-    getter = GetEventList(
-        repository=EventRepository(db),
-        event_member_repository=EventMemberRepository(db)
-    )
+
+    app = App()
+
+    app.wire(modules=[
+        __name__,
+        'src',
+    ])
 
     presenter = EventListMessagePresenter()
 
+    getter: GetEventList = app.event_applications().get_event_list()
     getter.execute(
         chat_id=chat_id,
         member_id=member_id,
@@ -99,10 +108,10 @@ async def event_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     event_id = context.args[0] if context.args[0] else 0
     if not event_id.isdigit() or event_id == 0:
-        context.bot.send_message(chat_id=chat_id, text='Событие не найдено')
+        context.bot.send_message(chat_id=chat_id, text=f'Событие {event_id} не найдено')
         return
 
-    message_text = re.sub(r'/[\w\-_]* \d* ]', '', update.message.text)
+    message_text = re.sub(r'/[\w\-_]* \d* ', '', update.message.text)
 
     lines = message_text.splitlines()
     name = lines[0] if lines else ''
@@ -112,10 +121,12 @@ async def event_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.bot.send_message(chat_id=chat_id, text='Придумай название своему бесполезному событию')
         return
 
-    updater = EventUpdate(
-        repository=EventRepository(db),
-        event_member_repository=EventMemberRepository(db),
-    )
+    app = App()
+
+    app.wire(modules=[
+        __name__,
+        'src',
+    ])
 
     params = EventUpdateParams(
         chat_id,
@@ -127,6 +138,7 @@ async def event_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     presenter = EventDetailTelegramMessagePresenter()
 
+    updater: EventUpdate = app.event_applications().update_event()
     updater.execute(params, presenter)
 
     message, keyboard = presenter.present()
@@ -145,10 +157,12 @@ async def event_remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.bot.send_message(chat_id=chat_id, text='Событие не найдено')
         return
 
-    remind = EventRemind(
-        event_repository=EventRepository(db),
-        event_member_repository=EventMemberRepository(db)
-    )
+    app = App()
+
+    app.wire(modules=[
+        __name__,
+        'src',
+    ])
 
     params = EventRemindParams(
         event_id,
@@ -157,6 +171,8 @@ async def event_remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     presenter = EventDetailTelegramMessagePresenter()
+
+    remind: EventRemind = app.event_applications().remind_event()
     remind.execute(params, presenter)
     message, keyboard = presenter.present()
 
@@ -174,10 +190,12 @@ async def event_delete(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.bot.send_message(chat_id=chat_id, text='Событие не найдено')
         return
 
-    deleter = EventDelete(
-        repository=EventRepository(db),
-        event_member_repository=EventMemberRepository(db)
-    )
+    app = App()
+
+    app.wire(modules=[
+        __name__,
+        'src',
+    ])
 
     params = EventDeleteParams(
         event_id,
@@ -185,6 +203,7 @@ async def event_delete(update: Update, context: ContextTypes.DEFAULT_TYPE):
         member_id,
     )
 
+    deleter: EventDelete = app.event_applications().delete_event()
     message = deleter.execute(params)
 
     await context.bot.send_message(chat_id=chat_id, text=message)

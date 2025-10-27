@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from typing import List
 
 from src.domain.entities import User
-from src.models import Event, EventMember, db
-from src.repositories import EventRepository, EventMemberRepository
+from src.domain.events.models import Event, EventMember
+from src.domain.events.repositories import EventRepository, EventMemberRepository
 
 
 @dataclass
@@ -51,7 +51,8 @@ class CreateEvent:
         )
 
         try:
-            with db.atomic():
+            # TODO сделать сервис транзакций
+            # with db.atomic():
                 self.event_repository.save(event)
                 event_member = EventMember(
                     event_id=event.get_id(),

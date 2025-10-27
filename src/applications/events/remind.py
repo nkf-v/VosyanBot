@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List
 
-from src.models import EventMember, Event
-from src.repositories import EventRepository, EventMemberRepository
+from src.domain.events.models import EventMember, Event
+from src.domain.events.repositories import EventRepository, EventMemberRepository
 
 
 @dataclass

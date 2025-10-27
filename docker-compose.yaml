@@ -17,6 +17,7 @@ services:
       context: .
       dockerfile: ./docker/Dockerfile
     image: app
+    command: ["python", "-m", "src.cli", "sleep"]
     volumes:
       - ./:/usr/src/app
     env_file:

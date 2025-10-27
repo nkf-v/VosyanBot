@@ -84,22 +84,3 @@ class CarmicDicesEnabled(Model):
         order_by = ('chat_id',)
 
     chat_id = BigIntegerField()
-
-class Event(Model):
-    class Meta:
-        database = db
-        order_by = ('chat_id',)
-
-    chat_id = BigIntegerField()
-    member_id = BigIntegerField()
-    name = TextField(default='')
-    text = TextField()
-
-class EventMember(Model):
-    class Meta:
-        database = db
-
-    event_id = BigIntegerField()
-    member_id = BigIntegerField()
-    nick_name = CharField()
-    user_name = CharField()

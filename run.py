@@ -34,7 +34,6 @@ from src.repositories import (
     CurrentPidorRepository
 )
 
-
 def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
     logger.error(
         "Uncaught exception, application will terminate.",
@@ -529,7 +528,7 @@ async def dice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
-if __name__ == '__main__':
+def main():
     application = (
         ApplicationBuilder()
         .token(os.getenv('BOT_TOKEN'))
@@ -540,31 +539,19 @@ if __name__ == '__main__':
         .build()
     )
 
-    reg_handler = CommandHandler('reg', reg)
-    unreg_handler = CommandHandler('unreg', unreg)
-    pidor_handler = CommandHandler('pidor', pidor)
-    run_handler = CommandHandler('run', run)
-    stats_handler = CommandHandler('stats', stats)
-    pidor_stats_handler = CommandHandler('pidorstats', pidor_stats)
-    reset_stats_handler = CommandHandler('resetstats', reset_stats)
-    percent_stats_handler = CommandHandler('percentstats', percent_stats)
-    nice_coefficients_handler = CommandHandler('nicecoefficients', show_coefficients)
-    pidor_coefficients_handler = CommandHandler('pidorcoefficients', show_pidor_coefficients)
-    switch_on_carmic_dices_in_chat_handler = CommandHandler('carmicdices', switch_on_carmic_dices_in_chat)
-
     application.add_handlers([
         # pidr
-        reg_handler,
-        unreg_handler,
-        pidor_handler,
-        run_handler,
-        stats_handler,
-        pidor_stats_handler,
-        reset_stats_handler,
-        percent_stats_handler,
-        nice_coefficients_handler,
-        pidor_coefficients_handler,
-        switch_on_carmic_dices_in_chat_handler,
+        CommandHandler('reg', reg),
+        CommandHandler('unreg', unreg),
+        CommandHandler('pidor', pidor),
+        CommandHandler('run', run),
+        CommandHandler('stats', stats),
+        CommandHandler('pidorstats', pidor_stats),
+        CommandHandler('resetstats', reset_stats),
+        CommandHandler('percentstats', percent_stats),
+        CommandHandler('nicecoefficients', show_coefficients),
+        CommandHandler('pidorcoefficients', show_pidor_coefficients),
+        CommandHandler('carmicdices', switch_on_carmic_dices_in_chat),
 
         # events
         CommandHandler('events', events.events),
@@ -591,3 +578,7 @@ if __name__ == '__main__':
     application.add_error_handler(error)
 
     application.run_polling()
+
+
+if __name__ == '__main__':
+    main()

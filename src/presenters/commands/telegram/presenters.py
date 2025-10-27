@@ -7,7 +7,7 @@ from src.applications.events.create import EventCreatePresenter
 from src.applications.events.get_list import EventListPresenter
 from src.applications.events.remind import EventRemindPresenter
 from src.applications.events.update import EventUpdatePresenter
-from src.models import Event, EventMember
+from src.domain.events.models import Event, EventMember
 
 
 class EventListMessagePresenter(EventListPresenter):

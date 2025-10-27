@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from src.models import Event, EventMember
-from src.repositories import EventRepository, EventMemberRepository
+from src.domain.events.models import Event, EventMember
+from src.domain.events.repositories import EventRepository, EventMemberRepository
 
 @dataclass
 class EventMemberLeaveParams:
