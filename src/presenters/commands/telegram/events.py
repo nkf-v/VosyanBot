@@ -23,7 +23,7 @@ async def event_create(
         update: Update,
         context: ContextTypes.DEFAULT_TYPE,
 ):
-    chat_id = update.message.chat_id
+    chat_id = update.message.chat.id
     member_id = update.message.from_user.id
 
     message_text = re.sub(r'/[\w\-_]* ', '', update.message.text)
@@ -69,9 +69,8 @@ async def event_create(
 
 
 async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.message.chat_id
+    chat_id = update.message.chat.id
     member_id = update.message.from_user.id
-
 
     app = App()
 
@@ -103,7 +102,7 @@ async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def event_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.message.chat_id
+    chat_id = update.message.chat.id
     member_id = update.message.from_user.id
 
     event_id = context.args[0] if context.args[0] else 0
@@ -129,9 +128,9 @@ async def event_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ])
 
     params = EventUpdateParams(
+        event_id,
         chat_id,
         member_id,
-        event_id,
         name,
         text,
     )
@@ -149,7 +148,7 @@ async def event_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def event_remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.message.chat_id
+    chat_id = update.message.chat.id
     member_id = update.message.from_user.id
 
     event_id = context.args[0] if context.args[0] else 0
@@ -182,7 +181,7 @@ async def event_remind(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def event_delete(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.message.chat_id
+    chat_id = update.message.chat.id
     member_id = update.message.from_user.id
 
     event_id = context.args[0] if context.args[0] else 0
