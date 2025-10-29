@@ -102,7 +102,7 @@ class EventDetailTelegramMessagePresenter(EventCreatePresenter, EventRemindPrese
             if member.sidekick_count > 0:
                 member_str += f" + {member.sidekick_count} 🐗"
 
-            messages.append(f"- {member.user_name} (@{member.nick_name})")
+            messages.append(member_str)
 
         keyboard = [
             [
