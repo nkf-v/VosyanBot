@@ -123,17 +123,29 @@ async def keyboard_handle(
 
                 refresh = presenter.is_refresh()
 
-            case 'event_sidekick_inc', 'event_sidekick_dec':
-                mapping = {
-                    'event_sidekick_inc': Actions.INC,
-                    'event_sidekick_dec': Actions.INC,
-                }
-
+            case 'event_sidekick_inc':
                 params = EventMemberSideKickParams(
                     event_id,
                     chat_id,
                     member_id,
-                    mapping.get(action),
+                    Actions.INC,
+                )
+
+                presenter = EventMemberSidekickPresenter()
+
+                sidekick: EventMemberSidekickExecutor = app.event_member_applications().sidekick()
+                sidekick.execute(params, presenter)
+
+                message = presenter.present()
+
+                refresh = presenter.is_refresh()
+
+            case 'event_sidekick_dec':
+                params = EventMemberSideKickParams(
+                    event_id,
+                    chat_id,
+                    member_id,
+                    Actions.DEC,
                 )
 
                 presenter = EventMemberSidekickPresenter()
