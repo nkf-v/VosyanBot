@@ -6,6 +6,8 @@ from telegram.ext import ContextTypes
 
 from src.applications.event_members.invite import EventMemberInvite, EventMemberInviteParams, EventMemberInvitePresenter
 from src.applications.event_members.leave import EventMemberLeave, EventMemberLeaveParams, EventMemberLeavePresenter
+from src.applications.event_members.sidekick import EventMemberSideKickParams, EventMemberSidekickPresenter, \
+    EventMemberSidekickExecutor, Actions
 from src.applications.events.delete import EventDelete, EventDeleteParams
 from src.applications.events.remind import EventRemind, EventRemindParams
 from src.db_functions import reset_stats_data, remove_chat_from_carmic_dices_in_db, add_chat_to_carmic_dices_in_db
@@ -40,7 +42,7 @@ async def keyboard_handle(
         await update.callback_query.edit_message_text(text='Кармические кубики включены')
     else:
         data = json.loads(query)
-        action = data.get('action')
+        action: str = data.get('action')
         event_id = data.get('event_id')
         message = None
         keyboard = None
@@ -53,6 +55,7 @@ async def keyboard_handle(
             'src',
         ])
 
+        # TODO Сделать стратегии
         match action:
             case 'dice_roll':
                 dice = data.get('dice')
@@ -115,6 +118,28 @@ async def keyboard_handle(
 
                 leave: EventMemberLeave = app.event_member_applications().leave()
                 leave.execute(params, presenter)
+
+                message = presenter.present()
+
+                refresh = presenter.is_refresh()
+
+            case 'event_sidekick_inc', 'event_sidekick_dec':
+                mapping = {
+                    'event_sidekick_inc': Actions.INC,
+                    'event_sidekick_dec': Actions.INC,
+                }
+
+                params = EventMemberSideKickParams(
+                    event_id,
+                    chat_id,
+                    member_id,
+                    mapping.get(action),
+                )
+
+                presenter = EventMemberSidekickPresenter()
+
+                sidekick: EventMemberSidekickExecutor = app.event_member_applications().sidekick()
+                sidekick.execute(params, presenter)
 
                 message = presenter.present()
 

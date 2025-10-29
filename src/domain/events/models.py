@@ -14,3 +14,4 @@ class EventMember(peewee.Model):
     member_id = peewee.BigIntegerField()
     nick_name = peewee.CharField()
     user_name = peewee.CharField()
+    sidekick_count = peewee.SmallIntegerField(default=0)

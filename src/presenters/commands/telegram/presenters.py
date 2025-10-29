@@ -97,6 +97,11 @@ class EventDetailTelegramMessagePresenter(EventCreatePresenter, EventRemindPrese
         ]
 
         for member in self.members:
+            member_str = f"- {member.user_name} (@{member.nick_name})"
+
+            if member.sidekick_count > 0:
+                member_str += f" + {member.sidekick_count} 🐗"
+
             messages.append(f"- {member.user_name} (@{member.nick_name})")
 
         keyboard = [
@@ -120,14 +125,14 @@ class EventDetailTelegramMessagePresenter(EventCreatePresenter, EventRemindPrese
                 InlineKeyboardButton(
                     text="+ 🐗 кабанчик",
                     callback_data=json.dumps({
-                        'action': 'event_invite_inc',
+                        'action': 'event_sidekick_inc',
                         'event_id': self.event.get_id(),
                     })
                 ),
                 InlineKeyboardButton(
                     text="- 🐗 кабанчик",
                     callback_data=json.dumps({
-                        'action': 'event_leave_dec',
+                        'action': 'event_sidekick_dec',
                         'event_id': self.event.get_id(),
                     })
                 ),

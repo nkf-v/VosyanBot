@@ -2,6 +2,7 @@ from dependency_injector import containers, providers
 
 from src.applications.event_members.invite import EventMemberInvite
 from src.applications.event_members.leave import EventMemberLeave
+from src.applications.event_members.sidekick import EventMemberSidekickExecutor
 from src.infrastructure.events.containers import Repositories
 
 
@@ -14,6 +15,12 @@ class EventMemberApplications(containers.DeclarativeContainer):
 
     leave = providers.Singleton(
         EventMemberLeave,
+        event_repository=Repositories.event_repository,
+        event_member_repository=Repositories.event_member_repository,
+    )
+
+    sidekick = providers.Singleton(
+        EventMemberSidekickExecutor,
         event_repository=Repositories.event_repository,
         event_member_repository=Repositories.event_member_repository,
     )
