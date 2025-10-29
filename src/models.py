@@ -29,6 +29,7 @@ class Member(Model):
         database = db
         table_name = 'members'
         order_by = ('chat_id',)
+        evolve = False
 
     chat_id = BigIntegerField()
     member_id = BigIntegerField()
@@ -42,6 +43,7 @@ class PidorStats(Model):
     class Meta:
         database = db
         order_by = ('chat_id',)
+        evolve = False
 
     chat_id = BigIntegerField()
     member_id = BigIntegerField()
@@ -52,6 +54,7 @@ class Stats(Model):
     class Meta:
         database = db
         order_by = ('chat_id',)
+        evolve = False
 
     chat_id = BigIntegerField()
     member_id = BigIntegerField()
@@ -62,6 +65,7 @@ class CurrentPidor(Model):
     class Meta:
         database = db
         order_by = ('chat_id',)
+        evolve = False
 
     chat_id = BigIntegerField()
     member_id = BigIntegerField()
@@ -72,6 +76,7 @@ class CurrentNice(Model):
     class Meta:
         database = db
         order_by = ('chat_id',)
+        evolve = False
 
     chat_id = BigIntegerField()
     member_id = BigIntegerField()
@@ -82,5 +87,6 @@ class CarmicDicesEnabled(Model):
     class Meta:
         database = db
         order_by = ('chat_id',)
+        evolve = False
 
     chat_id = BigIntegerField()
