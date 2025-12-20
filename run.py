@@ -11,7 +11,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot, In
     InputTextMessageContent
 from telegram.constants import ParseMode
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler, MessageHandler, \
-    filters, InlineQueryHandler
+    filters, InlineQueryHandler, ConversationHandler
 
 import src.messages as messages
 import src.stickers as stickers
@@ -559,6 +559,19 @@ def main():
         CommandHandler('eventupdate', events.event_update),
         CommandHandler('eventdelete', events.event_delete),
         CommandHandler('eventremind', events.event_remind),
+
+        ConversationHandler(
+            entry_points=[CommandHandler('event_create', events.event_create_start_steps)],
+            states={
+                events.EVENT_CREATE_TITLE_ENTER: [MessageHandler(filters.TEXT, events.event_create_title_enter)],
+                events.EVENT_CREATE_DESCRIPTION_ENTER: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, events.event_create_description_enter),
+                    CommandHandler('skip', events.event_create_description_enter_skip),
+                ],
+                events.EVENT_CREATE_DONE: [],
+            },
+            fallbacks=[CommandHandler('cancel', events.event_create_cancel)],
+        ),
 
         # help
         CommandHandler('help', help),

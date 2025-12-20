@@ -2,7 +2,7 @@ import re
 
 from telegram import Update, InlineKeyboardMarkup, ReplyKeyboardMarkup
 from telegram.constants import ChatType
-from telegram.ext import ContextTypes
+from telegram.ext import ContextTypes, ConversationHandler
 
 from src.applications.events import create
 from src.applications.events.create import CreateEvent
@@ -15,9 +15,10 @@ from src.infrastructure.telegram import User
 from src.presenters.commands.telegram.presenters import EventListMessagePresenter, EventDetailTelegramMessagePresenter
 
 (
-    EVENT_ENTER_TEXT,
-    EVENT_ENTER_IMAGE
-) = range(2)
+    EVENT_CREATE_TITLE_ENTER,
+    EVENT_CREATE_DESCRIPTION_ENTER,
+    EVENT_CREATE_DONE,
+) = range(3)
 
 async def event_create(
         update: Update,
@@ -66,6 +67,85 @@ async def event_create(
     reply_markup = InlineKeyboardMarkup(keyboard) if keyboard is not None else None
 
     await update.message.reply_text(text=message, reply_markup=reply_markup)
+
+
+async def event_create_start_steps(
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+):
+    await update.message.reply_text(
+        """
+        СТАРТУЕМ! Создавать событие. Введи свое офигенное название своего офигенного события.
+        Для "ХАЛЯ У НАС ОТМЕНА" нажми /cancel 
+        """,
+    )
+
+    return EVENT_CREATE_TITLE_ENTER
+
+
+async def event_create_title_enter(
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+):
+    context.user_data['title'] = update.message.text
+
+    await update.message.reply_text(
+        "Далее введи свое офигенное описание события или пропусти нажав /skip.",
+    )
+
+    return EVENT_CREATE_DESCRIPTION_ENTER
+
+
+async def event_create_description_enter(
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+):
+    context.user_data['description'] = update.message.text
+
+    await update.message.reply_text("Записал")
+
+    return EVENT_CREATE_DONE
+
+
+async def event_create_description_enter_skip(
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+):
+    await update.message.reply_text(
+        """
+        Ну не хочешь как хочешь
+        """,
+    )
+
+    return EVENT_CREATE_DONE
+
+
+async def event_create_cancel(
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+):
+    await update.message.reply_text(
+        """
+        Не сработались!
+        """,
+    )
+
+    return ConversationHandler.END
+
+
+async def event_create_done(
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+):
+    await update.message.reply_text(
+        f"""
+        Событие создано
+        Title: {context.user_data['title']}
+        Desc: {context.user_data['description']}
+        """,
+    )
+
+    return ConversationHandler.END
 
 
 async def events(update: Update, context: ContextTypes.DEFAULT_TYPE):
