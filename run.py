@@ -8,7 +8,7 @@ from uuid import uuid4
 
 import telegram.error
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot, InlineQueryResultArticle, \
-    InputTextMessageContent
+    InputTextMessageContent, ReactionTypeEmoji
 from telegram.constants import ParseMode
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler, MessageHandler, \
     filters, InlineQueryHandler
@@ -528,7 +528,16 @@ async def dice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
+async def handle_message(update: Update, context):
+    logger.debug('handle_message')
+    await update.message.set_reaction([
+        ReactionTypeEmoji("🤡"),
+    ])
+
 def main():
+    prekl_chat_id = os.getenv('PREKL_CHAT_ID')
+    prekl_user_id = os.getenv('PREKL_USER_ID')
+
     application = (
         ApplicationBuilder()
         .token(os.getenv('BOT_TOKEN'))
@@ -570,7 +579,13 @@ def main():
         CallbackQueryHandler(keyboard_handle),
 
         # inline keyboard
-        InlineQueryHandler(inline_query)
+        InlineQueryHandler(inline_query),
+
+        # handle messages
+        MessageHandler(
+            filters.User(user_id=prekl_user_id),
+            handle_message
+        ),
     ])
 
     application.add_handler(MessageHandler(filters.StatusUpdate.LEFT_CHAT_MEMBER, member_left))
