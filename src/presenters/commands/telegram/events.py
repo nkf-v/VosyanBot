@@ -105,9 +105,10 @@ async def event_create_description_enter(
 
     context.user_data.clear()
 
-    await update.message.reply_text('Записываю текущее событие событие')
-
     chat_id = update.message.chat.id
+
+    await context.bot.send_message(chat_id=chat_id, text='Записываю текущее событие событие')
+
     member_id = update.message.from_user.id
 
     nick_name = update.message.from_user.username
@@ -139,7 +140,7 @@ async def event_create_description_enter(
 
     reply_markup = InlineKeyboardMarkup(keyboard) if keyboard is not None else None
 
-    await update.message.reply_text(text=message, reply_markup=reply_markup)
+    await context.bot.send_message(chat_id=chat_id, text=message, reply_markup=reply_markup)
 
     return ConversationHandler.END
 
@@ -148,24 +149,58 @@ async def event_create_description_enter_skip(
         update: Update,
         context: ContextTypes.DEFAULT_TYPE,
 ):
-    await update.message.reply_text(
-        """
-        Ну не хочешь как хочешь
-        """,
+    await update.message.reply_text('Ну не хочешь как хочешь')
+
+    name = context.user_data['title']
+    text = ''
+
+    context.user_data.clear()
+
+    chat_id = update.message.chat.id
+
+    await context.bot.send_message(chat_id=chat_id, text='Записываю текущее событие событие')
+
+    member_id = update.message.from_user.id
+
+    nick_name = update.message.from_user.username
+    user_name = update.message.from_user.full_name
+
+    app = App()
+
+    app.wire(modules=[
+        __name__,
+        'src',
+    ])
+
+    params = create.CreateEvenParams(
+        chat_id,
+        member_id,
+        name,
+        text,
+        User(
+            nick_name,
+            user_name,
+        )
     )
 
-    return EVENT_CREATE_DONE
+    presenter = EventDetailTelegramMessagePresenter()
+    event_create_executor: CreateEvent = app.event_applications().create_event()
+    event_create_executor.execute(params, presenter)
+
+    message, keyboard = presenter.present()
+
+    reply_markup = InlineKeyboardMarkup(keyboard) if keyboard is not None else None
+
+    await context.bot.send_message(chat_id=chat_id, text=message, reply_markup=reply_markup)
+
+    return ConversationHandler.END
 
 
 async def event_create_cancel(
         update: Update,
         context: ContextTypes.DEFAULT_TYPE,
 ):
-    await update.message.reply_text(
-        """
-        Не сработались!
-        """,
-    )
+    await update.message.reply_text('Не сработались!')
 
     return ConversationHandler.END
 
