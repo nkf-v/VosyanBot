@@ -3,6 +3,7 @@ import time
 import typer
 import src.infrastructure.events.cli as events
 import src.infrastructure.event_members.cli as event_members
+from src.domain.events import models
 from src.infrastructure.containers.events import App
 
 cli_app = typer.Typer()
@@ -30,7 +31,10 @@ def sleep():
 
 @cli_app.command()
 def db_evolve():
-    app.gateways().db_connect_factory().create().evolve()
+    con = app.gateways().db_connect_factory().create()
+    models.Event.bind(con)
+    models.EventMember.bind(con)
+    con.evolve()
 
 
 if __name__ == "__main__":
