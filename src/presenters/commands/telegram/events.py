@@ -75,8 +75,8 @@ async def event_create_start_steps(
 ):
     await update.message.reply_text(
         """
-        СТАРТУЕМ! Создавать событие. Введи свое офигенное название своего офигенного события.
-        Для "ХАЛЯ У НАС ОТМЕНА" нажми /cancel 
+СТАРТУЕМ! Создавать событие. Введи свое офигенное название своего офигенного события.
+Для "ГАЛЯ У НАС ОТМЕНА" нажми /cancel
         """,
     )
 
@@ -100,11 +100,48 @@ async def event_create_description_enter(
         update: Update,
         context: ContextTypes.DEFAULT_TYPE,
 ):
-    context.user_data['description'] = update.message.text
+    name = context.user_data['title']
+    text = update.message.text
 
-    await update.message.reply_text("Записал")
+    context.user_data.clear()
 
-    return EVENT_CREATE_DONE
+    await update.message.reply_text('Записываю текущее событие событие')
+
+    chat_id = update.message.chat.id
+    member_id = update.message.from_user.id
+
+    nick_name = update.message.from_user.username
+    user_name = update.message.from_user.full_name
+
+    app = App()
+
+    app.wire(modules=[
+        __name__,
+        'src',
+    ])
+
+    params = create.CreateEvenParams(
+        chat_id,
+        member_id,
+        name,
+        text,
+        User(
+            nick_name,
+            user_name,
+        )
+    )
+
+    presenter = EventDetailTelegramMessagePresenter()
+    event_create_executor: CreateEvent = app.event_applications().create_event()
+    event_create_executor.execute(params, presenter)
+
+    message, keyboard = presenter.present()
+
+    reply_markup = InlineKeyboardMarkup(keyboard) if keyboard is not None else None
+
+    await update.message.reply_text(text=message, reply_markup=reply_markup)
+
+    return ConversationHandler.END
 
 
 async def event_create_description_enter_skip(
@@ -127,21 +164,6 @@ async def event_create_cancel(
     await update.message.reply_text(
         """
         Не сработались!
-        """,
-    )
-
-    return ConversationHandler.END
-
-
-async def event_create_done(
-        update: Update,
-        context: ContextTypes.DEFAULT_TYPE,
-):
-    await update.message.reply_text(
-        f"""
-        Событие создано
-        Title: {context.user_data['title']}
-        Desc: {context.user_data['description']}
         """,
     )
 

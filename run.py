@@ -561,16 +561,24 @@ def main():
         CommandHandler('eventremind', events.event_remind),
 
         ConversationHandler(
-            entry_points=[CommandHandler('event_create', events.event_create_start_steps)],
+            entry_points=[
+                CommandHandler('event_create', events.event_create_start_steps),
+            ],
             states={
-                events.EVENT_CREATE_TITLE_ENTER: [MessageHandler(filters.TEXT, events.event_create_title_enter)],
+                events.EVENT_CREATE_TITLE_ENTER: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, events.event_create_title_enter),
+                ],
                 events.EVENT_CREATE_DESCRIPTION_ENTER: [
                     MessageHandler(filters.TEXT & ~filters.COMMAND, events.event_create_description_enter),
                     CommandHandler('skip', events.event_create_description_enter_skip),
                 ],
-                events.EVENT_CREATE_DONE: [],
             },
-            fallbacks=[CommandHandler('cancel', events.event_create_cancel)],
+            fallbacks=[
+                CommandHandler('cancel', events.event_create_cancel),
+            ],
+            conversation_timeout=300,
+            per_user=True,
+            per_chat=True,
         ),
 
         # help
